@@ -18,6 +18,13 @@
     {
       "src": "/(.*)",
       "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "WWW-Authenticate": "Basic realm=\"Protected\""
+      },
+      "status": 401
     }
   ],
   "env": {
