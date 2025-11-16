@@ -4,6 +4,10 @@
     {
       "src": "public/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -26,10 +30,4 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "functions": {
-    "api/generate.js": {
-      "maxDuration": 60,
-      "memory": 1024
-    }
-  }
 }
