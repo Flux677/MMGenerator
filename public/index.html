@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MythicMobs Generator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗡️ MythicMobs Generator</h1>
+            <p>Generate Custom Mobs untuk MythicMobs Plugin dengan AI</p>
+        </header>
+
+        <main>
+            <!-- Category Selection -->
+            <section class="card">
+                <h2>Kategori Mob</h2>
+                <div class="category-grid">
+                    <label class="category-option">
+                        <input type="radio" name="category" value="boss" checked>
+                        <span>👑 Boss</span>
+                        <small>Boss tunggal dengan skill kompleks</small>
+                    </label>
+                    <label class="category-option">
+                        <input type="radio" name="category" value="boss_dungeon">
+                        <span>🏰 Boss + Dungeon Mobs</span>
+                        <small>Boss beserta minion untuk dungeon</small>
+                    </label>
+                    <label class="category-option">
+                        <input type="radio" name="category" value="miniboss">
+                        <span>⚔️ Mini Boss</span>
+                        <small>Boss menengah untuk challenge</small>
+                    </label>
+                    <label class="category-option">
+                        <input type="radio" name="category" value="normal">
+                        <span>🌍 Mob Biasa</span>
+                        <small>Mob untuk world exploration</small>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Description Input -->
+            <section class="card">
+                <h2>Deskripsi Mob</h2>
+                <textarea 
+                    id="description" 
+                    placeholder="Contoh: Buat boss ice wizard yang bisa summon minion, punya skill freeze area, dan teleport. Gunakan Stray sebagai base mob dengan disguise sebagai wizard biru."
+                    rows="5"
+                ></textarea>
+                <div class="tips">
+                    <strong>💡 Tips:</strong> Sebutkan karakter referensi (anime/game), skill yang diinginkan, dan base mob Minecraft
+                </div>
+            </section>
+
+            <!-- Optional Features -->
+            <section class="card">
+                <h2>Fitur Tambahan (Opsional)</h2>
+                <div class="checkbox-grid">
+                    <label>
+                        <input type="checkbox" id="includeItems">
+                        <span>📦 Generate Items/Drops</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="includeDropTables">
+                        <span>🎲 Generate Drop Tables</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="advancedAI">
+                        <span>🧠 AI Mechanics (Threat Table, dll)</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="particleEffects">
+                        <span>✨ Particle Effects</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Generate Button -->
+            <button id="generateBtn" class="btn-primary">
+                <span id="btnText">⚡ Generate Mob</span>
+                <span id="btnLoader" class="loader" style="display: none;"></span>
+            </button>
+
+            <!-- Loading Progress -->
+            <div id="progressBar" class="progress-bar" style="display: none;">
+                <div class="progress-fill"></div>
+                <p id="progressText">Menghubungi AI...</p>
+            </div>
+
+            <!-- Results Section -->
+            <section id="resultsSection" style="display: none;">
+                <div class="card">
+                    <h2>✅ Hasil Generate</h2>
+                    
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="mobs">Mobs Config</button>
+                        <button class="tab-btn" data-tab="skills">Skills Config</button>
+                        <button class="tab-btn" data-tab="items">Items Config</button>
+                        <button class="tab-btn" data-tab="setup">Setup Guide</button>
+                    </div>
+
+                    <!-- Tab Contents -->
+                    <div class="tab-content active" id="mobs-content">
+                        <div class="code-header">
+                            <span>📄 Mobs.yml</span>
+                            <button class="copy-btn" data-target="mobsCode">📋 Copy</button>
+                        </div>
+                        <pre><code id="mobsCode"></code></pre>
+                    </div>
+
+                    <div class="tab-content" id="skills-content">
+                        <div class="code-header">
+                            <span>📄 Skills.yml</span>
+                            <button class="copy-btn" data-target="skillsCode">📋 Copy</button>
+                        </div>
+                        <pre><code id="skillsCode"></code></pre>
+                    </div>
+
+                    <div class="tab-content" id="items-content">
+                        <div class="code-header">
+                            <span>📄 Items.yml</span>
+                            <button class="copy-btn" data-target="itemsCode">📋 Copy</button>
+                        </div>
+                        <pre><code id="itemsCode"></code></pre>
+                    </div>
+
+                    <div class="tab-content" id="setup-content">
+                        <div class="setup-guide" id="setupGuide"></div>
+                    </div>
+
+                    <!-- Download All Button -->
+                    <button id="downloadBtn" class="btn-secondary">
+                        💾 Download Semua Config
+                    </button>
+                </div>
+            </section>
+
+            <!-- Error Display -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </main>
+
+        <footer>
+            <p>Powered by Claude AI & MythicMobs</p>
+            <p><a href="https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home" target="_blank">📚 Wiki MythicMobs</a></p>
+        </footer>
+    </div>
+
+    <script src="js/ui.js"></script>
+    <script src="js/generator.js"></script>
+</body>
+</html>
