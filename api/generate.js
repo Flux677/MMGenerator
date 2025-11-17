@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-// Vercel Serverless Function
-=======
 // Vercel Serverless Function - FIXED VERSION
->>>>>>> 2e6cd79 (Memperbaiki)
 // API Key akan diambil dari Environment Variables di Vercel Dashboard
 
 export default async function handler(req, res) {
@@ -22,9 +18,6 @@ export default async function handler(req, res) {
     }
 
     try {
-<<<<<<< HEAD
-        const { category, description, options } = req.body;
-=======
         // ✅ FIX: Tambahkan default values untuk parameter baru
         const { 
             category, 
@@ -33,7 +26,6 @@ export default async function handler(req, res) {
             description, 
             options = {}                     // Default ke empty object
         } = req.body;
->>>>>>> 2e6cd79 (Memperbaiki)
 
         // Validation
         if (!category || !description) {
@@ -42,13 +34,8 @@ export default async function handler(req, res) {
             });
         }
 
-<<<<<<< HEAD
-        // Build comprehensive prompt
-        const prompt = buildPrompt(category, description, options);
-=======
         // Build comprehensive prompt with new features
         const prompt = buildAdvancedPrompt(category, difficulty, aiComplexity, description, options);
->>>>>>> 2e6cd79 (Memperbaiki)
 
         // Call Claude API
         const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -126,16 +113,11 @@ export default async function handler(req, res) {
     }
 }
 
-<<<<<<< HEAD
-// Helper: Build comprehensive prompt
-function buildPrompt(category, description, options) {
-=======
 // Helper: Build ADVANCED comprehensive prompt
 function buildAdvancedPrompt(category, difficulty, aiComplexity, description, options) {
     // ✅ FIX: Tambahkan null check untuk options
     options = options || {};
     
->>>>>>> 2e6cd79 (Memperbaiki)
     const categoryGuides = {
         boss: 'Boss tunggal dengan skill kompleks dan multiple phases',
         boss_dungeon: 'Boss utama beserta 2-3 jenis minion mobs untuk dungeon',
@@ -143,65 +125,6 @@ function buildAdvancedPrompt(category, difficulty, aiComplexity, description, op
         normal: 'Mob biasa untuk world exploration, skill simple'
     };
 
-<<<<<<< HEAD
-    let prompt = `Kamu adalah expert MythicMobs configuration generator. Generate konfigurasi LENGKAP dan VALID untuk: ${categoryGuides[category]}
-
-DESKRIPSI REQUEST:
-${description}
-
-CRITICAL REQUIREMENTS:
-1. WAJIB gunakan LibDisguises untuk visual (JANGAN gunakan ModelEngine/plugin berbayar)
-2. Syntax HARUS 100% sesuai MythicMobs Wiki
-3. Base Type HARUS vanilla Minecraft mob (ZOMBIE, SKELETON, IRON_GOLEM, dll)
-4. Skills harus balanced dan menarik
-5. Output HARUS dalam format JSON yang valid
-
-`;
-
-    if (category === 'boss_dungeon') {
-        prompt += `STRUKTUR UNTUK BOSS + DUNGEON:
-- 1 Boss utama dengan nama format: <NAMA>_BOSS
-- 2-3 jenis minion dengan nama format: <NAMA>_MINION_1, <NAMA>_MINION_2
-- Boss bisa summon minion
-- Minion mendukung boss dalam combat
-
-`;
-    }
-
-    if (options.advancedAI) {
-        prompt += `AI MODULES:
-- Implementasikan ThreatTable untuk aggro management
-- Custom AITargetSelectors dan AIGoalSelectors
-- Behavior yang intelligent
-
-`;
-    }
-
-    if (options.particleEffects) {
-        prompt += `VISUAL EFFECTS:
-- Gunakan particle effects dari https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Mechanics/Particle/Particle-Types
-- Effect untuk skill animations
-- Ambient particles untuk atmosphere
-
-`;
-    }
-
-    prompt += `LIBDISGUISES SYNTAX:
-Format 1 - Player Skin:
-Disguise:
-  Type: PLAYER
-  Player: <username>
-  Skin: <username>
-
-Format 2 - Mob Type:
-Disguise:
-  Type: <MOB_TYPE>
-  Baby: true/false
-
-Valid Types: ZOMBIE, SKELETON, WITHER_SKELETON, STRAY, PIGLIN, HOGLIN, RAVAGER, VEX, PILLAGER, VINDICATOR, EVOKER, dll
-
-MYTHICMOBS SYNTAX REFERENCE:
-=======
     const difficultyGuides = {
         balanced: {
             hp: '500-800',
@@ -259,7 +182,6 @@ ${aiComplexityGuides[aiComplexity] || aiComplexityGuides.advanced}
 ${description}
 
 === MYTHICMOBS SYNTAX REFERENCE ===
->>>>>>> 2e6cd79 (Memperbaiki)
 
 MOBS Configuration:
 \`\`\`yaml
@@ -272,10 +194,7 @@ INTERNAL_NAME:
   Disguise:
     Type: PLAYER
     Player: Herobrine
-<<<<<<< HEAD
-=======
     Skin: Herobrine
->>>>>>> 2e6cd79 (Memperbaiki)
   Options:
     MovementSpeed: 0.3
     FollowRange: 32
@@ -302,64 +221,12 @@ SKILL_NAME:
   Cooldown: 10
   Conditions:
   - distance{d=<10} true
-<<<<<<< HEAD
-  TargetConditions:
-  - haspotioneffect{type=POISON} false
-=======
->>>>>>> 2e6cd79 (Memperbaiki)
   Skills:
   - damage{amount=10} @target
   - effect:particles{p=flame;a=50;hs=1;vs=1} @self
   - message{m="<caster.name> used skill!"} @PIR{r=30}
 \`\`\`
 
-<<<<<<< HEAD
-Key Mechanics:
-- damage{amount=X;ignoreArmor=true}
-- projectile{v=10;i=1;hs=true}
-- summon{type=MOB_NAME;amount=3}
-- teleport{} @target
-- throw{velocity=5;velocityY=2}
-- potion{type=SLOW;duration=100;level=1}
-- particles{particle=FLAME;amount=10}
-- sound{s=ENTITY_ENDER_DRAGON_GROWL;v=1;p=1}
-
-Targeters:
-- @self
-- @target
-- @PIR{r=10} (Players in radius)
-- @EIR{r=10} (Entities in radius)
-- @Ring{radius=5;points=8}
-- @Forward{f=5}
-
-Triggers:
-- ~onTimer:100 (every 5 seconds)
-- ~onAttack
-- ~onDamaged
-- ~onSpawn
-- ~onDeath
-
-OUTPUT FORMAT (STRICT JSON):
-Berikan response dalam JSON dengan format berikut:
-\`\`\`json
-{
-  "mobs": "# MythicMobs configuration\\nINTERNAL_NAME:\\n  Type: ZOMBIE\\n  ...",
-  "skills": "# Skills configuration\\nSKILL_NAME:\\n  Skills:\\n  - ...",
-  "items": "${options.includeItems ? '# Items configuration\\nITEM_NAME:\\n  ...' : '# Items not requested'}",
-  "setup_guide": "# Setup Guide\\n1. Copy Mobs.yml to plugins/MythicMobs/Mobs/\\n2. ..."
-}
-\`\`\`
-
-IMPORTANT NOTES:
-- Jangan gunakan ModelEngine, Model Engine, atau plugin model 3D berbayar
-- HANYA gunakan LibDisguises untuk disguise
-- Escape special characters dalam JSON string
-- Gunakan \\n untuk newline dalam string
-- Test semua syntax sesuai Wiki MythicMobs
-- Base mob Type harus vanilla (ZOMBIE, SKELETON, etc)
-
-Generate konfigurasi yang production-ready dan siap pakai!`;
-=======
 OUTPUT FORMAT (STRICT JSON):
 \`\`\`json
 {
@@ -378,7 +245,6 @@ CRITICAL REQUIREMENTS:
 5. Return valid JSON format
 
 Generate a complete, working configuration!`;
->>>>>>> 2e6cd79 (Memperbaiki)
 
     return prompt;
 }

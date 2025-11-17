@@ -9,11 +9,21 @@ async function handleGenerate() {
     
     // Get form data
     const category = document.querySelector('input[name="category"]:checked').value;
+    const difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'balanced';
+    const aiComplexity = document.querySelector('input[name="ai_complexity"]:checked')?.value || 'advanced';
     const description = document.getElementById('description').value.trim();
     const includeItems = document.getElementById('includeItems').checked;
     const includeDropTables = document.getElementById('includeDropTables').checked;
-    const advancedAI = document.getElementById('advancedAI').checked;
+    const advancedAI = document.getElementById('advancedAI')?.checked || false;
     const particleEffects = document.getElementById('particleEffects').checked;
+    
+    // New advanced options
+    const phaseSystem = document.getElementById('phaseSystem')?.checked || false;
+    const variableStates = document.getElementById('variableStates')?.checked || false;
+    const environmentalHazards = document.getElementById('environmentalHazards')?.checked || false;
+    const minionCoordination = document.getElementById('minionCoordination')?.checked || false;
+    const adaptiveDifficulty = document.getElementById('adaptiveDifficulty')?.checked || false;
+    const counterMechanics = document.getElementById('counterMechanics')?.checked || false;
     
     // Validation
     if (!description) {
@@ -29,12 +39,20 @@ async function handleGenerate() {
     // Prepare request data
     const requestData = {
         category,
+        difficulty,
+        aiComplexity,
         description,
         options: {
             includeItems,
             includeDropTables,
-            advancedAI,
-            particleEffects
+            advancedAI: advancedAI || aiComplexity !== 'basic',
+            particleEffects,
+            phaseSystem,
+            variableStates,
+            environmentalHazards,
+            minionCoordination,
+            adaptiveDifficulty,
+            counterMechanics
         }
     };
     
@@ -42,7 +60,7 @@ async function handleGenerate() {
         UIHelpers.setLoading(true);
         
         // Call API
-        const response = await fetch('api/generate', {
+        const response = await fetch('/api/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

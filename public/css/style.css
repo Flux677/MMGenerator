@@ -138,6 +138,140 @@ textarea:focus {
     color: #78350f;
 }
 
+/* Difficulty Grid */
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+}
+
+.difficulty-option {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.difficulty-option:hover {
+    border-color: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.2);
+}
+
+.difficulty-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.difficulty-option input[type="radio"]:checked + span {
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+.difficulty-option input[type="radio"]:checked ~ small {
+    color: var(--secondary);
+}
+
+.difficulty-option span {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.difficulty-option small {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+/* AI Complexity Grid */
+.ai-complexity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.ai-option {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.ai-option:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+}
+
+.ai-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.ai-option input[type="radio"]:checked + span {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.ai-option input[type="radio"]:checked ~ small {
+    color: var(--primary);
+}
+
+.ai-option span {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.ai-option small {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+/* Mechanics Grid */
+.mechanics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+.mechanics-grid label {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--light);
+}
+
+.mechanics-grid label:hover {
+    background: white;
+    border-color: var(--primary);
+}
+
+.mechanics-grid input[type="checkbox"] {
+    margin-right: 0.5rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.mechanics-grid input[type="checkbox"]:checked + span {
+    color: var(--primary);
+    font-weight: 500;
+}
+
 /* Checkbox Grid */
 .checkbox-grid {
     display: grid;
