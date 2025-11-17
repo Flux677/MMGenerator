@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Vercel Serverless Function
+=======
+// Vercel Serverless Function - FIXED VERSION
+>>>>>>> 2e6cd79 (Memperbaiki)
 // API Key akan diambil dari Environment Variables di Vercel Dashboard
 
 export default async function handler(req, res) {
@@ -18,7 +22,18 @@ export default async function handler(req, res) {
     }
 
     try {
+<<<<<<< HEAD
         const { category, description, options } = req.body;
+=======
+        // ✅ FIX: Tambahkan default values untuk parameter baru
+        const { 
+            category, 
+            difficulty = 'balanced',        // Default ke balanced
+            aiComplexity = 'advanced',      // Default ke advanced
+            description, 
+            options = {}                     // Default ke empty object
+        } = req.body;
+>>>>>>> 2e6cd79 (Memperbaiki)
 
         // Validation
         if (!category || !description) {
@@ -27,8 +42,13 @@ export default async function handler(req, res) {
             });
         }
 
+<<<<<<< HEAD
         // Build comprehensive prompt
         const prompt = buildPrompt(category, description, options);
+=======
+        // Build comprehensive prompt with new features
+        const prompt = buildAdvancedPrompt(category, difficulty, aiComplexity, description, options);
+>>>>>>> 2e6cd79 (Memperbaiki)
 
         // Call Claude API
         const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -106,8 +126,16 @@ export default async function handler(req, res) {
     }
 }
 
+<<<<<<< HEAD
 // Helper: Build comprehensive prompt
 function buildPrompt(category, description, options) {
+=======
+// Helper: Build ADVANCED comprehensive prompt
+function buildAdvancedPrompt(category, difficulty, aiComplexity, description, options) {
+    // ✅ FIX: Tambahkan null check untuk options
+    options = options || {};
+    
+>>>>>>> 2e6cd79 (Memperbaiki)
     const categoryGuides = {
         boss: 'Boss tunggal dengan skill kompleks dan multiple phases',
         boss_dungeon: 'Boss utama beserta 2-3 jenis minion mobs untuk dungeon',
@@ -115,6 +143,7 @@ function buildPrompt(category, description, options) {
         normal: 'Mob biasa untuk world exploration, skill simple'
     };
 
+<<<<<<< HEAD
     let prompt = `Kamu adalah expert MythicMobs configuration generator. Generate konfigurasi LENGKAP dan VALID untuk: ${categoryGuides[category]}
 
 DESKRIPSI REQUEST:
@@ -172,6 +201,65 @@ Disguise:
 Valid Types: ZOMBIE, SKELETON, WITHER_SKELETON, STRAY, PIGLIN, HOGLIN, RAVAGER, VEX, PILLAGER, VINDICATOR, EVOKER, dll
 
 MYTHICMOBS SYNTAX REFERENCE:
+=======
+    const difficultyGuides = {
+        balanced: {
+            hp: '500-800',
+            damage: '10-15',
+            description: 'Balanced stats, fair mechanics, suitable for most players'
+        },
+        hard: {
+            hp: '1000-1500',
+            damage: '20-30',
+            description: 'High HP and damage, complex attack patterns, requires skill'
+        },
+        nightmare: {
+            hp: '300-500',
+            damage: '35-50',
+            description: 'LOW HP but DEVASTATING mechanics, one-shot potential, glass cannon style'
+        },
+        psychological: {
+            hp: '600-800',
+            damage: '8-12',
+            description: 'Menegangkan: darkness effects, sound cues, stealth mechanics, jump scares'
+        },
+        souls: {
+            hp: '700-1000',
+            damage: '15-25',
+            description: 'Pattern-based combat, telegraphed attacks (2s warning), punishing but FAIR'
+        },
+        swarm: {
+            hp: '400-600',
+            damage: '5-10',
+            description: 'Low individual damage, summons MANY minions, overwhelming tactics'
+        }
+    };
+
+    const aiComplexityGuides = {
+        advanced: 'ThreatTable, smart targeting, adaptive behavior',
+        elite: 'Variable-based state machine, decision trees, counter-play mechanics',
+        nightmare: 'Learns player patterns, adaptive AI, punishes repetitive actions'
+    };
+
+    const diff = difficultyGuides[difficulty] || difficultyGuides.balanced;
+
+    let prompt = `You are an EXPERT MythicMobs configuration generator. Create a ${categoryGuides[category]} with ${diff.description}.
+
+=== DIFFICULTY: ${difficulty.toUpperCase()} ===
+${diff.description}
+Recommended Stats:
+- Health: ${diff.hp}
+- Damage: ${diff.damage}
+- Adjust based on mechanics complexity
+
+=== AI COMPLEXITY: ${aiComplexity.toUpperCase()} ===
+${aiComplexityGuides[aiComplexity] || aiComplexityGuides.advanced}
+
+=== USER REQUEST ===
+${description}
+
+=== MYTHICMOBS SYNTAX REFERENCE ===
+>>>>>>> 2e6cd79 (Memperbaiki)
 
 MOBS Configuration:
 \`\`\`yaml
@@ -184,6 +272,10 @@ INTERNAL_NAME:
   Disguise:
     Type: PLAYER
     Player: Herobrine
+<<<<<<< HEAD
+=======
+    Skin: Herobrine
+>>>>>>> 2e6cd79 (Memperbaiki)
   Options:
     MovementSpeed: 0.3
     FollowRange: 32
@@ -210,14 +302,18 @@ SKILL_NAME:
   Cooldown: 10
   Conditions:
   - distance{d=<10} true
+<<<<<<< HEAD
   TargetConditions:
   - haspotioneffect{type=POISON} false
+=======
+>>>>>>> 2e6cd79 (Memperbaiki)
   Skills:
   - damage{amount=10} @target
   - effect:particles{p=flame;a=50;hs=1;vs=1} @self
   - message{m="<caster.name> used skill!"} @PIR{r=30}
 \`\`\`
 
+<<<<<<< HEAD
 Key Mechanics:
 - damage{amount=X;ignoreArmor=true}
 - projectile{v=10;i=1;hs=true}
@@ -263,6 +359,26 @@ IMPORTANT NOTES:
 - Base mob Type harus vanilla (ZOMBIE, SKELETON, etc)
 
 Generate konfigurasi yang production-ready dan siap pakai!`;
+=======
+OUTPUT FORMAT (STRICT JSON):
+\`\`\`json
+{
+  "mobs": "# Complete Mobs.yml configuration",
+  "skills": "# Complete Skills.yml configuration",
+  "items": "${options.includeItems ? '# Items configuration' : '# Items not requested'}",
+  "setup_guide": "# Setup guide"
+}
+\`\`\`
+
+CRITICAL REQUIREMENTS:
+1. Use LibDisguises for visual (NO ModelEngine)
+2. Valid MythicMobs syntax only
+3. Base Type MUST be vanilla Minecraft mob
+4. Production-ready configurations
+5. Return valid JSON format
+
+Generate a complete, working configuration!`;
+>>>>>>> 2e6cd79 (Memperbaiki)
 
     return prompt;
 }
