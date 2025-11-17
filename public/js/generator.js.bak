@@ -42,7 +42,7 @@ async function handleGenerate() {
         UIHelpers.setLoading(true);
         
         // Call API
-        const response = await fetch('api/generate', {
+        const response = await fetch('/api/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
