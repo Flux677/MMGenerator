@@ -1,8 +1,7 @@
 // ============================================
-// STREAMING VERSION - FIX VERCEL TIMEOUT
+// FILE UTAMA: api/generate.js
 // ============================================
-
-// Import module prompts (AMAN, tidak perlu diubah)
+// Import prompt modules
 import { buildMainPrompt } from './prompts/main.js';
 import { getDifficultyGuide } from './prompts/difficulty.js';
 import { getAIComplexityGuide } from './prompts/ai-complexity.js';
@@ -10,102 +9,131 @@ import { getFeaturePrompts } from './prompts/features.js';
 import { getSyntaxReference } from './prompts/syntax.js';
 import { getAdvancedMechanics } from './prompts/advanced.js';
 
-// Vercel Serverless handler (same)
 export default async function handler(req, res) {
-
-    // ============ CORS ============
+    // CORS headers
+    res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-    // ============ VALIDATE API KEY ============
-    const API_KEY = process.env.ANTHROPIC_API_KEY;
-    if (!API_KEY) {
-        return res.status(500).json({ error: 'Anthropic API key missing' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    
+    if (!ANTHROPIC_API_KEY) {
+        console.error('ANTHROPIC_API_KEY not found');
+        return res.status(500).json({ 
+            error: 'Server configuration error: API key not configured' 
+        });
     }
 
     try {
-        // ====== READ BODY ======
-        const { category, difficulty, aiComplexity, description, options } = req.body;
+        const { 
+            category, 
+            difficulty = 'balanced',
+            aiComplexity = 'advanced',
+            description, 
+            options = {}
+        } = req.body;
 
         if (!category || !description) {
-            return res.status(400).json({
-                error: "Missing category or description"
+            return res.status(400).json({ 
+                error: 'Missing required fields: category and description' 
             });
         }
 
-        // ====== BUILD PROMPT (tidak diubah) ======
+        // Build prompt dari modules
         const prompt = buildCompletePrompt(category, difficulty, aiComplexity, description, options);
 
-        // ========== STREAMING REQUEST ke CLAUDE ==========
-        const response = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
+        console.log('Calling Claude API...');
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "x-api-key": API_KEY,
-                "anthropic-version": "2023-06-01"
+                'Content-Type': 'application/json',
+                'x-api-key': ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 8000,
-                stream: true,   // <==================== PENTING
-                messages: [
-                    { role: "user", content: prompt }
-                ]
-            })
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 16000,
+                temperature: 0.7,
+                messages: [{
+                    role: 'user',
+                    content: prompt
+                }]
+            }),
         });
 
-        // Jika Claude gagal
         if (!response.ok) {
-            const err = await response.text();
-            console.error("Claude error:", err);
-            return res.status(500).json({ error: "Claude API error" });
+            const errorText = await response.text();
+            console.error('Claude API Error:', response.status, errorText);
+            throw new Error(`Claude API Error: ${response.status}`);
         }
 
-        // ========= STREAM RESPONSE KE CLIENT =========
-        res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
-        res.setHeader("Connection", "keep-alive");
+        const data = await response.json();
+        const textContent = data.content
+            .filter(block => block.type === 'text')
+            .map(block => block.text)
+            .join('\n');
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        // STREAM LOOP
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            res.write(chunk);   // <===== KIRIM SEGERA KE CLIENT (anti-timeout)
+        // Parse JSON
+        let result;
+        try {
+            const jsonMatch = textContent.match(/```json\s*\n([\s\S]*?)\n```/);
+            if (jsonMatch) {
+                result = JSON.parse(jsonMatch[1]);
+            } else {
+                result = JSON.parse(textContent);
+            }
+        } catch (parseError) {
+            console.error('JSON Parse Error:', parseError);
+            result = {
+                mobs: extractSection(textContent, 'mobs') || textContent,
+                skills: extractSection(textContent, 'skills') || '',
+                items: options.includeItems ? extractSection(textContent, 'items') : '',
+                setup_guide: extractSection(textContent, 'setup') || generateDefaultSetupGuide(category)
+            };
         }
 
-        res.end();
+        const finalResult = {
+            mobs: result.mobs || '# No mobs configuration generated',
+            skills: result.skills || '# No skills configuration generated',
+            items: result.items || '# No items configuration',
+            setup_guide: result.setup_guide || generateDefaultSetupGuide(category)
+        };
 
-    } catch (err) {
-        console.error("STREAM ERROR:", err);
-        return res.status(500).json({ error: "Streaming failed", reason: err.message });
+        return res.status(200).json(finalResult);
+
+    } catch (error) {
+        return res.status(500).json({ 
+            error: error.message || 'Failed to generate configuration'
+        });
     }
 }
 
-
 // ============================================
-// PROMPT BUILDER (bagian kamu sebelumnya, aman)
+// FUNCTION: Build Complete Prompt
 // ============================================
 function buildCompletePrompt(category, difficulty, aiComplexity, description, options) {
     options = options || {};
-
+    
+    // Ambil data dari modules
     const mainPrompt = buildMainPrompt(category, difficulty, aiComplexity, description);
     const diffGuide = getDifficultyGuide(difficulty);
     const aiGuide = getAIComplexityGuide(aiComplexity);
     const featurePrompts = getFeaturePrompts(options, difficulty);
     const syntaxRef = getSyntaxReference();
     const advancedMech = getAdvancedMechanics();
-
-    return `
-${mainPrompt}
+    
+    // Gabungkan semua
+    let fullPrompt = `${mainPrompt}
 
 === DIFFICULTY GUIDE ===
 ${diffGuide}
@@ -122,18 +150,67 @@ ${syntaxRef}
 === ADVANCED MECHANICS ===
 ${advancedMech}
 
-OUTPUT FORMAT:
-STRICT JSON inside code block:
-
+OUTPUT FORMAT (STRICT JSON):
 \`\`\`json
 {
-  "mobs": "...",
-  "skills": "...",
-  "items": "...",
-  "setup_guide": "..."
+  "mobs": "# Complete Mobs.yml configuration\\n...",
+  "skills": "# Complete Skills.yml configuration\\n...",
+  "items": "${options.includeItems ? '# Items.yml configuration\\n...' : '# Items not requested'}",
+  "setup_guide": "# Setup guide\\n..."
 }
 \`\`\`
 
-Generate now.
-`;
+CRITICAL REQUIREMENTS:
+1. Use LibDisguises for visual (NO ModelEngine)
+2. Valid MythicMobs syntax only
+3. Base Type MUST be vanilla Minecraft mob
+4. Production-ready configurations
+5. Return valid JSON format
+
+Generate COMPLETE, WORKING configuration NOW!`;
+
+    return fullPrompt;
+}
+
+// Helper functions
+function extractSection(text, sectionName) {
+    const patterns = [
+        new RegExp(`# ${sectionName}[\\s\\S]*?(?=\\n#|$)`, 'i'),
+        new RegExp(`${sectionName}[\\s\\S]*?(?=\\n\\n|$)`, 'i')
+    ];
+    
+    for (const pattern of patterns) {
+        const match = text.match(pattern);
+        if (match) return match[0];
+    }
+    return null;
+}
+
+function generateDefaultSetupGuide(category) {
+    return `# Setup Guide - ${category.toUpperCase()}
+
+## Installation
+1. Install plugins:
+   - MythicMobs (latest)
+   - LibDisguises (latest)
+   - ProtocolLib (dependency)
+
+2. Copy configurations:
+   - Mobs.yml → plugins/MythicMobs/Mobs/
+   - Skills.yml → plugins/MythicMobs/Skills/
+   - Items.yml → plugins/MythicMobs/Items/
+
+3. Reload: /mm reload
+
+## Spawning
+/mm mobs spawn <INTERNAL_NAME> 1
+
+## Testing
+1. Spawn mob in safe area
+2. Test all skills
+3. Adjust stats if needed
+
+## Resources
+- Wiki: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home
+- LibDisguises: https://www.spigotmc.org/resources/libsdisguises.81/`;
 }
