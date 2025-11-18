@@ -1,9 +1,22 @@
-// UI Event Handlers
+// UI Event Handlers (UPDATED)
 document.addEventListener('DOMContentLoaded', () => {
     initializeTabs();
     initializeCopyButtons();
     initializeDownloadButton();
+    initializeSummonMethodToggle(); // NEW
 });
+
+// NEW: Toggle summon method dropdown visibility
+function initializeSummonMethodToggle() {
+    const summonCheckbox = document.getElementById('summonMechanic');
+    const summonMethodContainer = document.getElementById('summonMethodContainer');
+    
+    if (summonCheckbox && summonMethodContainer) {
+        summonCheckbox.addEventListener('change', (e) => {
+            summonMethodContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+}
 
 // Tab System
 function initializeTabs() {
@@ -176,6 +189,7 @@ function setLoading(isLoading) {
             'Membaca dokumentasi MythicMobs...',
             'Generating mob configuration...',
             'Generating skills...',
+            'Creating spawn effects...',
             'Optimizing syntax...',
             'Finalizing...'
         ];

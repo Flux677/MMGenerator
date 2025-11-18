@@ -1,5 +1,5 @@
 // ============================================
-// FILE UTAMA: api/generate.js
+// FILE UTAMA: api/generate.js (UPDATED)
 // ============================================
 // Import prompt modules
 import { buildMainPrompt } from './prompts/main.js';
@@ -8,6 +8,7 @@ import { getAIComplexityGuide } from './prompts/ai-complexity.js';
 import { getFeaturePrompts } from './prompts/features.js';
 import { getSyntaxReference } from './prompts/syntax.js';
 import { getAdvancedMechanics } from './prompts/advanced.js';
+import { getVisualEffectPrompts } from './prompts/visual-effects.js'; // NEW
 
 export default async function handler(req, res) {
     // CORS headers
@@ -119,7 +120,7 @@ export default async function handler(req, res) {
 }
 
 // ============================================
-// FUNCTION: Build Complete Prompt
+// FUNCTION: Build Complete Prompt (UPDATED)
 // ============================================
 function buildCompletePrompt(category, difficulty, aiComplexity, description, options) {
     options = options || {};
@@ -132,6 +133,14 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
     const syntaxRef = getSyntaxReference();
     const advancedMech = getAdvancedMechanics();
     
+    // NEW: Visual effects prompts
+    const visualEffects = getVisualEffectPrompts({
+        spawnAuraEffect: options.spawnAuraEffect,
+        spawnHologram: options.spawnHologram,
+        summonMechanic: options.summonMechanic,
+        summonMethod: options.summonMethod
+    });
+    
     // Gabungkan semua
     let fullPrompt = `${mainPrompt}
 
@@ -143,6 +152,10 @@ ${aiGuide}
 
 === FEATURES TO IMPLEMENT ===
 ${featurePrompts}
+
+${visualEffects ? `=== VISUAL SPAWN EFFECTS ===
+${visualEffects}
+` : ''}
 
 === MYTHICMOBS SYNTAX REFERENCE ===
 ${syntaxRef}
@@ -166,6 +179,8 @@ CRITICAL REQUIREMENTS:
 3. Base Type MUST be vanilla Minecraft mob
 4. Production-ready configurations
 5. Return valid JSON format
+${options.summonMechanic ? `6. Include SPAWNER mob configuration for summon mechanic
+7. Add detailed setup instructions for spawner placement` : ''}
 
 Generate COMPLETE, WORKING configuration NOW!`;
 

@@ -131,16 +131,55 @@
                 </div>
             </section>
 
+            <!-- NEW: Visual Spawn Effects -->
+            <section class="card">
+                <h2>✨ Visual Spawn Effects</h2>
+                <div class="mechanics-grid">
+                    <label>
+                        <input type="checkbox" id="spawnAuraEffect">
+                        <span>🌀 Spawn Aura/Magic Circle</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="spawnHologram">
+                        <span>💬 Hologram Name/Title</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="summonMechanic">
+                        <span>🗿 Custom Summon Mechanic</span>
+                    </label>
+                </div>
+                
+                <!-- Conditional: Summon Method Selection -->
+                <div id="summonMethodContainer" style="display:none; margin-top:1rem; padding-top:1rem; border-top:1px solid #e2e8f0;">
+                    <label style="display:block; margin-bottom:0.5rem;">
+                        <strong>Summon Method:</strong>
+                    </label>
+                    <select id="summonMethod" style="width:100%; padding:0.75rem; border:2px solid #e2e8f0; border-radius:8px; font-size:1rem;">
+                        <option value="proximity_trigger">🚶 Proximity Trigger (Player masuk radius)</option>
+                        <option value="item_interact">🔮 Item Right-Click</option>
+                        <option value="armor_stand">🗿 Armor Stand + Item Offering</option>
+                        <option value="block_ritual">⭐ Block Ritual Pattern</option>
+                    </select>
+                </div>
+            </section>
+
             <!-- Description Input -->
             <section class="card">
                 <h2>Deskripsi Mob</h2>
                 <textarea 
                     id="description" 
-                    placeholder="Contoh: Buat boss ice wizard yang bisa summon minion, punya skill freeze area, dan teleport. Gunakan Stray sebagai base mob dengan disguise sebagai wizard biru."
+                    placeholder="Contoh: Buat boss ice wizard yang bisa summon minion, punya skill freeze area, dan teleport. Gunakan Stray sebagai base mob dengan disguise sebagai wizard biru. Spawn dengan magic circle es berwarna cyan."
                     rows="5"
                 ></textarea>
                 <div class="tips">
                     <strong>💡 Tips:</strong> Sebutkan karakter referensi (anime/game), skill yang diinginkan, dan base mob Minecraft
+                    <br><br>
+                    <strong>✨ Visual Effects Tips:</strong>
+                    <ul style="margin-left:1.5rem; margin-top:0.5rem; margin-bottom:0;">
+                        <li><strong>Spawn Aura:</strong> "dengan magic circle berwarna biru saat spawn" atau "ritual pattern api merah"</li>
+                        <li><strong>Hologram:</strong> "hologram nama boss dengan efek glowing"</li>
+                        <li><strong>Summon:</strong> "spawn otomatis saat player masuk arena" atau "summon dengan klik nether star"</li>
+                    </ul>
                 </div>
             </section>
 

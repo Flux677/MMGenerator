@@ -1,4 +1,4 @@
-// Main Generator Logic
+// Main Generator Logic (UPDATED)
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.addEventListener('click', handleGenerate);
@@ -17,13 +17,19 @@ async function handleGenerate() {
     const advancedAI = document.getElementById('advancedAI')?.checked || false;
     const particleEffects = document.getElementById('particleEffects').checked;
     
-    // New advanced options
+    // Advanced mechanics
     const phaseSystem = document.getElementById('phaseSystem')?.checked || false;
     const variableStates = document.getElementById('variableStates')?.checked || false;
     const environmentalHazards = document.getElementById('environmentalHazards')?.checked || false;
     const minionCoordination = document.getElementById('minionCoordination')?.checked || false;
     const adaptiveDifficulty = document.getElementById('adaptiveDifficulty')?.checked || false;
     const counterMechanics = document.getElementById('counterMechanics')?.checked || false;
+    
+    // NEW: Visual spawn effects
+    const spawnAuraEffect = document.getElementById('spawnAuraEffect')?.checked || false;
+    const spawnHologram = document.getElementById('spawnHologram')?.checked || false;
+    const summonMechanic = document.getElementById('summonMechanic')?.checked || false;
+    const summonMethod = document.getElementById('summonMethod')?.value || 'proximity_trigger';
     
     // Validation
     if (!description) {
@@ -52,7 +58,12 @@ async function handleGenerate() {
             environmentalHazards,
             minionCoordination,
             adaptiveDifficulty,
-            counterMechanics
+            counterMechanics,
+            // NEW options
+            spawnAuraEffect,
+            spawnHologram,
+            summonMechanic,
+            summonMethod: summonMechanic ? summonMethod : null
         }
     };
     
@@ -90,86 +101,4 @@ async function handleGenerate() {
     } finally {
         UIHelpers.setLoading(false);
     }
-}
-
-// Helper: Build prompt for AI
-function buildPrompt(category, description, options) {
-    const categoryGuides = {
-        boss: 'Boss tunggal dengan skill kompleks dan multiple phases',
-        boss_dungeon: 'Boss utama beserta 2-3 jenis minion mobs untuk dungeon',
-        miniboss: 'Mini boss dengan skill menengah, tidak terlalu kompleks',
-        normal: 'Mob biasa untuk world exploration, skill simple'
-    };
-    
-    let prompt = `Generate konfigurasi MythicMobs untuk: ${categoryGuides[category]}
-
-DESKRIPSI REQUEST:
-${description}
-
-REQUIREMENTS:
-1. WAJIB gunakan LibDisguises untuk visual mob
-2. Syntax HARUS 100% sesuai MythicMobs Wiki
-3. Gunakan vanilla Minecraft mob sebagai base Type
-4. Skills harus menarik dan balanced
-`;
-
-    if (options.advancedAI) {
-        prompt += `5. Implementasi AI modules (ThreatTable, PathfinderGoals)
-`;
-    }
-
-    if (options.particleEffects) {
-        prompt += `6. Tambahkan particle effects yang indah
-`;
-    }
-
-    if (category === 'boss_dungeon') {
-        prompt += `
-STRUKTUR YANG DIBUTUHKAN:
-- 1 Boss utama (nama: <NAMA>_BOSS)
-- 2-3 jenis minion mobs (nama: <NAMA>_MINION_1, <NAMA>_MINION_2, dst)
-- Boss bisa summon minion
-- Minion support boss dalam combat
-`;
-    }
-
-    prompt += `
-OUTPUT FORMAT (PENTING):
-Berikan response dalam format JSON seperti ini:
-{
-  "mobs": "# Isi Mobs.yml configuration",
-  "skills": "# Isi Skills.yml configuration",
-  "items": "${options.includeItems ? '# Isi Items.yml configuration' : ''}",
-  "setup_guide": "# Panduan setup lengkap"
-}
-
-PANDUAN SYNTAX:
-- Mobs config: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Mobs/Mobs
-- Skills: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Skills
-- LibDisguises format: 
-  Disguise:
-    Type: PLAYER
-    Player: <skin_name>
-  ATAU
-  Disguise:
-    Type: <MOB_TYPE>
-    
-Contoh mob dengan LibDisguises:
-\`\`\`yaml
-NAMA_MOB:
-  Type: ZOMBIE
-  Display: '&cNama Display'
-  Health: 100
-  Damage: 10
-  Disguise:
-    Type: PLAYER
-    Player: Herobrine
-  Skills:
-  - skill{s=NAMA_SKILL} @target ~onTimer:100
-\`\`\`
-
-JANGAN gunakan ModelEngine atau plugin berbayar lainnya!
-HANYA gunakan LibDisguises untuk disguise!`;
-
-    return prompt;
 }
