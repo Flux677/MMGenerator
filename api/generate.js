@@ -1,12 +1,6 @@
 // Vercel Serverless Function
 // API Key akan diambil dari Environment Variables di Vercel Dashboard
 
-function extractSection(text, sectionName) {
-    const regex = new RegExp(`###\\s*${sectionName}[\\s\\S]*?(?=###|$)`, 'i');
-    const match = text.match(regex);
-    return match ? match[0].trim() : null;
-}
-
 export default async function handler(req, res) {
     // Only allow POST
     if (req.method !== 'POST') {
@@ -24,7 +18,14 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { category, difficulty, aiComplexity, description, options } = req.body;
+        const { 
+            category, 
+            difficulty = 'balanced',        // Default ke balanced
+            aiComplexity = 'advanced',      // Default ke advanced
+            description, 
+            options = {}                     // Default ke empty object
+        } = req.body;
+        
 
         // Validation
         if (!category || !description) {
@@ -114,6 +115,8 @@ export default async function handler(req, res) {
 
 // Helper: Build ADVANCED comprehensive prompt
 function buildAdvancedPrompt(category, difficulty, aiComplexity, description, options) {
+    options = options || {};
+    
     const categoryGuides = {
         boss: 'Boss tunggal dengan skill kompleks dan multiple phases',
         boss_dungeon: 'Boss utama beserta 2-3 jenis minion mobs untuk dungeon',

@@ -18,7 +18,14 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { category, difficulty, aiComplexity, description, options } = req.body;
+        const { 
+            category, 
+            difficulty = 'balanced',        // Default ke balanced
+            aiComplexity = 'advanced',      // Default ke advanced
+            description, 
+            options = {}                     // Default ke empty object
+        } = req.body;
+        
 
         // Validation
         if (!category || !description) {
