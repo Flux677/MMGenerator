@@ -1,6 +1,12 @@
 // Vercel Serverless Function
 // API Key akan diambil dari Environment Variables di Vercel Dashboard
 
+function extractSection(text, sectionName) {
+    const regex = new RegExp(`###\\s*${sectionName}[\\s\\S]*?(?=###|$)`, 'i');
+    const match = text.match(regex);
+    return match ? match[0].trim() : null;
+}
+
 export default async function handler(req, res) {
     // Only allow POST
     if (req.method !== 'POST') {
