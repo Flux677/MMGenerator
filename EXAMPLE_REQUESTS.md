@@ -837,12 +837,291 @@ Minions:
 
 Boss Bar: BLUE, SEGMENTED_6
 
+
 Generate complete dungeon dengan full minion coordination, environmental hazards, dan boss mechanics yang kompleks!
 ```
 
----
+## 6. 🗡️ **TOWER SKELETON INSPIRED** (Premium Mechanics)
 
-## 📋 **TIPS UNTUK REQUEST**
+**Category:** Boss  
+**Difficulty:** Hard  
+**AI Complexity:** Elite  
+
+**✅ Check:**
+- Multi-Phase System
+- Variable State Machine
+- Counter-Attack System
+- All Advanced Mechanics
+
+**Request:**
+```
+Buat boss "Dark Knight Commander" inspired by Tower Skeleton mechanics:
+
+=== STATS ===
+- HP: 1200
+- Damage: 18-25 (varies by attack)
+- Armor: 15
+- Speed: 0.35 (medium)
+
+=== CORE CONCEPT ===
+Knight boss dengan shield mechanics yang kompleks seperti Tower Skeleton.
+
+=== SHIELD SYSTEM (Key Mechanic) ===
+
+Shield HP Tracking:
+- var: caster.shieldhp (starts at 600)
+- var: caster.shieldup (true/false)
+- var: caster.shieldstate (1-5 stages)
+
+Shield States:
+1. Full Shield (600-450 HP)
+2. Damaged 1 (450-300 HP) - cracks appear
+3. Damaged 2 (300-150 HP) - more cracks
+4. Critical (150-1 HP) - almost broken
+5. Broken (0 HP) - no shield, vulnerable
+
+Shield Break Transitions:
+- Each break stage: Boss staggers 3s
+- Visual: particles, sounds
+- Boss forced to lower shield
+- 10s cooldown before can raise again
+
+Shield Up Mechanic:
+- Boss raises shield when taking damage
+- While shield up:
+  * Damage Resistance III
+  * Speed 0.75 (slower)
+  * Front attacks blocked (fieldofview check)
+  * Back attacks deal full damage
+- Duration: 20s or until broken
+
+Shield Damage:
+- Track damage to shield separately
+- variablesubtract{var=caster.shieldhp;amount=<skill.var.damage-amount>}
+- When shield breaks: 5s stun, vulnerable window
+
+=== ATTACK PATTERNS ===
+
+WITH SHIELD:
+
+1. Shield Bash (Close Range <8):
+   - Totem hitbox at shield
+   - Damage: 12 + knockback
+   - Cooldown: 8s
+   
+2. Shield Slam (Close Range <8):
+   - Overhead slam
+   - Damage: 15 + throw upward
+   - AOE 5 block radius
+   
+3. Shield Charge (Long Range >14):
+   - Charge forward (propel)
+   - Speed 2.5 during charge
+   - Hit: 20 damage + massive knockback
+   - Stop when close (<10 block)
+   
+4. Shield Flamethrower (Medium Range 7-16):
+   - Projectile spam from shield
+   - 100 projectiles over 5s
+   - Each: 3 damage + ignite
+   - Cooldown: 20s
+
+5. Shield Combo (3-hit combo):
+   - Bash → Slam → Bash
+   - Each hit with totem hitbox
+   - Only when <75% HP
+
+WITHOUT SHIELD (After break):
+
+6. Sword Combo 1 (Close Range <12):
+   - 3-hit melee combo
+   - Stomp → Punch → Sword slash
+   - Each with totem hitbox
+   - Total: 35 damage across combo
+   
+7. Sword Combo 2 (Close Range <8):
+   - 4-kick rapid combo
+   - Fast attacks, hard to dodge
+   - Each kick: 8 damage
+   
+8. Stab Sweep (Medium Range <14):
+   - Forward stab + horizontal sweep
+   - Projectile slash waves
+   - Damage: 20 stab + 15 sweep
+   
+9. Stomp Attack:
+   - Ground slam AOE
+   - Damage: 18 + slow effect
+   
+10. Grab Player (Close Range <8):
+    - Totem check for grab
+    - If success: mount player
+    - Drain HP over 4s (Wither IV)
+    - Boss heal 5% per second
+    - Throw player after
+
+11. Scream (AOE Debuff):
+    - Slow II for 6s
+    - Radius 32 blocks
+    - Screen shake (recoil)
+
+=== SOUL SWORD PHASE (<35% HP) ===
+
+Transformation:
+- Boss imbues sword with souls
+- Variable: caster.soul_sword = true
+- Visual: particle effects
+- Sword glows
+- New attack patterns
+
+Soul Sword Attacks:
+
+12. Soul Slash Combo 1 (2-hit dash):
+    - Dash forward + slash
+    - Dash forward + heavy slash
+    - Each dash: propel mechanic
+    - Damage: 20 + 25
+    
+13. Soul Slash Combo 2 (3-hit aerial):
+    - Slash → Kick → Jump slam
+    - Jump uses lunge mechanic
+    - Projectile wave on landing
+    - Damage: 15 + 15 + 30
+    
+14. Soul Slash Combo 3 (Dash Barrage):
+    - Rapid dash 25 times
+    - Totem hitbox throughout
+    - Hard to track movement
+    - Damage: 12 per hit
+    
+15. Soul Stomp Summon:
+    - Ground slam
+    - Summon 6 minions
+    - Minions spawn from holes (armor stands)
+
+=== MINIONS ===
+
+DARK_KNIGHT_MINION:
+- Base: HUSK
+- HP: 20
+- Damage: 5
+- Fast (speed 1.5)
+- Attack combo with totem
+- Explode on death (soul particles)
+
+=== VARIABLE TRACKING ===
+
+Initialize ~onSpawn:
+- var: caster.phase (1/2/3)
+- var: caster.shieldup (false)
+- var: caster.shieldhp (600)
+- var: caster.shieldstate (1)
+- var: caster.soul_sword (false)
+- var: caster.combo (0)
+- var: caster.stun (false)
+
+Check and update variables constantly!
+
+=== MECHANICS IMPLEMENTATION ===
+
+Use TOTEM for all melee:
+- totem{md=2;oH=DAMAGE_SKILL;hr=3;vr=4;delay=20;repeat=5;repeati=1}
+
+Use PROJECTILE for ranged:
+- Shield flamethrower: bulletType=MOB with tick events
+- Slash waves: straight projectiles with visual
+
+Use PROPEL/LUNGE for movement:
+- Charge: propel{v=2;repeat=20;repeati=1}
+- Dash attacks: lunge{v=3}
+
+Use LOCKMODEL during attacks:
+- lockmodel{l=true} at start
+- lockmodel{l=false;delay=60} at end
+
+Use SETSPEED control:
+- setspeed{s=0} during charge-up
+- setspeed{s=2.5} during charge
+- setspeed{s=0.75} with shield up
+
+Use BODYROTATION lock:
+- bodyrotation{mh=0;mb=0;rde=0;rdu=0} during attacks
+- bodyrotation{mh=30;mb=30;rde=40;rdu=60} normal
+
+Use RECOIL for impact:
+- recoil{r=20;pitch=-0.8} on big hits
+- Multiple recoils for shake effect
+
+Use BARSET for boss bar:
+- Flash white on damage
+- Change color on phase
+
+Use INLINE CONDITIONS:
+- Skills activate based on variables
+- ?varequals{var=caster.shieldup;val=true}
+- ?health{h=<35%}
+
+=== PHASES ===
+
+Phase 1 (100-75%): Shield Combat
+- Raise shield frequently
+- Shield attacks primary
+- Defensive playstyle
+
+Phase 2 (75-35%): Aggressive
+- Shield breaks more
+- Sword attacks unlock
+- Faster combos
+- Grab attack active
+
+Phase 3 (<35%): Soul Sword
+- Transform sword
+- Soul attacks unlock
+- Summon minions
+- Desperate tactics
+- Speed +25%
+
+=== TECHNICAL REQUIREMENTS ===
+
+- Base: IRON_GOLEM (for size + melee)
+- Disguise: WITHER_SKELETON with custom name
+- Particles: soul, flame, crit, dust_color_transition
+- Sounds: 
+  * Swing: entity.player.attack.sweep
+  * Impact: entity.generic.explode
+  * Shield: block.anvil.land
+  * Roar: entity.ender_dragon.growl
+- Boss Bar: PURPLE → RED at 50% → BLUE at 35%
+- ThreatTable: true (aggro management)
+
+=== BALANCE NOTES ===
+
+- Shield HP separate from boss HP
+- Breaking shield = vulnerability window
+- Back attacks bypass shield
+- Phase 3 hardest but boss low HP
+- Minions manageable (low HP)
+- All attacks telegraphed but fast
+- Requires pattern recognition
+
+Generate complete configuration using:
+✅ Totem hitboxes
+✅ Variable tracking extensive
+✅ Projectile systems
+✅ Movement mechanics (propel, lunge)
+✅ Speed/rotation control
+✅ Boss bar management
+✅ Recoil effects
+✅ Sound design
+✅ Particle effects
+✅ Phase transitions
+✅ Minion coordination
+✅ LibDisguises ONLY (no Model Engine!)
+
+Make this a PRODUCTION-READY boss like Tower Skeleton!
+```
+
+---
 
 1. **Be Specific:**
    - Detail stats

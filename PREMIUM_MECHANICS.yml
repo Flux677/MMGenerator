@@ -1,0 +1,884 @@
+# 🔥 MythicMobs Premium Mechanics Guide
+
+## Berdasarkan Referensi Tower Skeleton, Mega Warden, Pumpkin King
+
+**PENTING:** Tools ini TIDAK menggunakan Model Engine (plugin premium).
+Hanya LibDisguises + MythicMobs Premium features!
+
+---
+
+## 🎯 **TOTEM MECHANIC** (Precise Hitbox)
+
+### Apa itu Totem?
+Hitbox presisi untuk attack detection. Lebih akurat dari radius damage.
+
+### Syntax:
+```yaml
+- totem{
+    md=2;              # Max duration (ticks)
+    oH=DAMAGE_SKILL;   # On hit skill
+    hr=3;              # Horizontal radius
+    vr=4;              # Vertical radius
+    drawhitbox=false;  # Debug visual
+    delay=20;          # Delay before spawn
+    repeat=5;          # Repeat times
+    repeati=1;         # Repeat interval
+    hnp=true           # Hit non-players
+  } @forward{f=1}      # Location
+```
+
+### Contoh Penggunaan:
+
+**Sword Slash:**
+```yaml
+BOSS_sword_slash:
+  Skills:
+  - state{s=slash_animation} @self
+  - sound{s=sword_swing;v=1} @self
+  # Totem follows sword hitbox
+  - totem{
+      md=2;
+      oH=BOSS_slash_damage;
+      hr=2;
+      vr=2;
+      drawhitbox=false;
+      delay=15;
+      repeat=10;
+      repeati=1
+    } @forward{f=3}
+
+BOSS_slash_damage:
+  Skills:
+  - damage{a=15}
+  - throw{v=8;vy=3}
+  - effect:particles{p=crit;a=20}
+```
+
+**Shield Bash:**
+```yaml
+- totem{
+    md=2;
+    oH=SHIELD_BASH_HIT;
+    hr=3;
+    vr=4;
+    delay=20;
+    repeat=5;
+    repeati=1
+  } @self  # At boss location
+```
+
+**Combo Attack (Multiple Totems):**
+```yaml
+BOSS_triple_slash:
+  Skills:
+  # First slash
+  - totem{md=2;oH=SLASH_HIT;hr=2;vr=2;delay=10} @forward{f=2}
+  # Second slash
+  - totem{md=2;oH=SLASH_HIT;hr=2;vr=2;delay=25} @forward{f=2}
+  # Third slash (bigger)
+  - totem{md=2;oH=SLASH_HIT;hr=3;vr=3;delay=40} @forward{f=3}
+```
+
+---
+
+## 🚀 **PROJECTILE SYSTEM** (Advanced)
+
+### Projectile vs Missile:
+- **Projectile**: Straight line, gravity affected
+- **Missile**: Homing/tracking target
+
+### Projectile Advanced:
+```yaml
+- projectile{
+    bulletType=MOB;           # Type (MOB = summon entity)
+    mob=PROJECTILE_MOB;       # Entity to summon
+    
+    # Events
+    oS=[ - particles];        # On start
+    oT=TICK_SKILL;           # On tick (every frame)
+    oH=HIT_SKILL;            # On hit
+    oE=END_SKILL;            # On end
+    oB=BOUNCE_SKILL;         # On bounce
+    
+    # Physics
+    v=20;                    # Velocity
+    i=1;                     # Interval (ticks)
+    g=-0.05;                 # Gravity
+    ac=0.98;                 # Air friction
+    
+    # Hitbox
+    hR=2;                    # Horizontal radius
+    vR=2;                    # Vertical radius
+    hs=true;                 # Hit self
+    hnp=true;                # Hit non-players
+    
+    # Advanced
+    interpolation=4;         # Smooth movement
+    md=50;                   # Max distance
+    bounce=true;             # Can bounce
+    bv=0.5;                  # Bounce velocity
+    
+    # Origin
+    origin=@self;
+    fromorigin=true;
+    syo=0;                   # Start Y offset
+    sfo=0;                   # Start forward offset
+    sso=0;                   # Start side offset
+    
+    sE=false;                # Stop on entity hit
+  }
+```
+
+### Contoh: Fireball
+```yaml
+BOSS_fireball:
+  Skills:
+  - projectile{
+      bulletType=MOB;
+      mob=FIREBALL_VISUAL;
+      oT=FIREBALL_trail;
+      oH=FIREBALL_explode;
+      v=25;
+      i=1;
+      hR=2;
+      vR=2;
+      md=50;
+      g=-0.03;
+      origin=@self;
+      fromorigin=true;
+      syo=2;
+      sfo=1
+    } @target
+
+FIREBALL_trail:
+  Skills:
+  - effect:particles{p=flame;a=10;hs=0.2;vs=0.2}
+  - effect:particles{p=smoke;a=5}
+
+FIREBALL_explode:
+  Skills:
+  - damage{a=20;ignorearmor=true} @EIR{r=4}
+  - throw{v=10;vy=5} @EIR{r=4}
+  - effect:particles{p=explosion;a=1}
+  - effect:particles{p=flame;a=50;hs=2;vs=2}
+  - sound{s=entity.generic.explode;v=2}
+```
+
+### Contoh: Ice Spike
+```yaml
+BOSS_ice_spike:
+  Skills:
+  - projectile{
+      bulletType=MOB;
+      mob=ICE_SPIKE_PROP;
+      oT=ICE_trail;
+      oH=ICE_freeze;
+      v=15;
+      i=2;
+      hR=1;
+      vR=3;
+      md=30;
+      g=0;              # No gravity (straight)
+      interpolation=4;
+      origin=@self;
+      fromorigin=true;
+      syo=1
+    } @target
+
+ICE_trail:
+  Skills:
+  - effect:particles{p=snowflake;a=5;hs=0.3;vs=0.3}
+  - effect:particles{p=dust;color=#00FFFF;size=1;a=3}
+
+ICE_freeze:
+  Skills:
+  - damage{a=12}
+  - potion{type=SLOW;duration=100;level=3}
+  - effect:particles{p=block_crack;b=ice;a=30}
+```
+
+### Missile (Homing):
+```yaml
+BOSS_homing_missile:
+  Skills:
+  - missile{
+      ot=MISSILE_trail;
+      oH=MISSILE_explode;
+      v=30;              # Speed
+      i=1;
+      hR=2;
+      vR=2;
+      in=0.75;           # Inertia (tracking strength)
+      hs=true;
+      hfs=1.25;          # Hit self radius
+      d=120;             # Duration (ticks)
+      mr=2000;           # Max range
+      sE=true            # Stop on hit
+    } @target
+```
+
+---
+
+## 💨 **MOVEMENT MECHANICS**
+
+### 1. Throw (Knockback)
+```yaml
+# Basic throw
+- throw{v=10;vy=4} @target
+
+# Advanced throw
+- throw{velocity=5;velocityY=2;repeat=3;repeati=5} @PIR{r=8}
+
+# Throw away from boss
+- throw{v=12;vy=3} @forward{f=-5}
+```
+
+### 2. Propel (Dash)
+```yaml
+# Dash forward
+- propel{v=3} @forward{f=5}
+
+# Charge at target
+- propel{v=2;repeat=20;repeati=1} @target
+
+# Knockback self
+- propel{v=0.5} @forward{f=-3}
+```
+
+### 3. Lunge (Attack Leap)
+```yaml
+# Lunge to target
+- lunge{v=3;vy=1} @target
+
+# Delayed lunge
+- lunge{v=2;delay=20} @target
+
+# Slam down
+- lunge{v=1;vy=-5} @self
+```
+
+### 4. Velocity (Direct Control)
+```yaml
+# Launch upward
+- velocity{m=set;x=0;y=10;z=0} @self
+
+# Add velocity
+- velocity{m=add;x=2;y=0;z=0} @self
+
+# Stop movement
+- velocity{m=set;x=0;y=0;z=0} @self
+```
+
+### 5. Teleport
+```yaml
+# Teleport to target
+- teleport @target
+
+# Teleport behind player
+- teleport{l=@target;y=0;yaw=180} @self
+
+# Random teleport
+- teleport @RLNTE  # Random location near target
+
+# Teleport to ring
+- teleport @ring{r=10;p=1}
+```
+
+---
+
+## 🎭 **STATE & ANIMATION SYSTEM**
+
+### State Mechanic:
+```yaml
+# Play state
+- state{s=attack_combo;p=3} @self
+# s = state name
+# p = priority (higher = override lower)
+
+# Loop state
+- state{s=idle_aggressive;lo=5} @self
+# lo = loop count
+
+# Remove state
+- state{s=current_state;r=true} @self
+```
+
+### Default State:
+```yaml
+# Set default states
+- defaultstate{t=idle;s=idle_normal} @self
+- defaultstate{t=walk;s=walk_normal} @self
+
+# Change default for phase
+- defaultstate{t=idle;s=idle_enraged} @self ?health{h=<30%}
+- defaultstate{t=walk;s=walk_fast} @self ?health{h=<30%}
+```
+
+### Lock Model:
+```yaml
+# Lock during animation
+- lockmodel{l=true} @self
+- delay 60
+- lockmodel{l=false} @self
+
+# Or with delay
+- lockmodel{l=true} @self
+- lockmodel{l=false;delay=60} @self
+```
+
+### Body Rotation:
+```yaml
+# Normal rotation
+- bodyrotation{mh=30;mb=30;rde=40;rdu=60} @self
+# mh = max head rotation
+# mb = max body rotation
+# rde = rotation down ease
+# rdu = rotation up ease
+
+# Lock rotation (during attack)
+- bodyrotation{mh=0;mb=0;rde=0;rdu=0} @self
+- delay 40
+- bodyrotation{mh=30;mb=30;rde=40;rdu=60} @self
+```
+
+### Set Speed:
+```yaml
+# Stop movement
+- setspeed{t=walking;s=0} @self
+
+# Normal speed
+- setspeed{t=walking;s=1} @self
+
+# Fast speed
+- setspeed{t=walking;s=2} @self
+
+# Timed speed
+- setspeed{s=0;repeat=50;repeati=1} @self
+- setspeed{s=1.5;delay=50} @self
+```
+
+---
+
+## 🧠 **AI CONTROL**
+
+### Set AI:
+```yaml
+# Disable AI
+- setAI{ai=false} @self
+
+# Enable AI
+- setAI{ai=true} @self
+
+# Timed AI disable
+- setAI{ai=false;repeat=100;repeati=1} @self
+- setAI{ai=true;delay=100} @self
+```
+
+### Look:
+```yaml
+# Force look at target
+- look{l=force;repeat=60;repeati=1} @target
+
+# Head only look
+- look{headOnly=true;immediately=true} @target
+```
+
+### Goto:
+```yaml
+# Pathfind to target
+- goto{speedModifier=1;sh=2;sv=2} @target
+# sh = search horizontal
+# sv = search vertical
+```
+
+### Stance:
+```yaml
+# Set stance
+- setstance{stance=rage} @self
+- setstance{stance=defensive} @self
+- setstance{stance=normal} @self
+
+# Check stance
+Conditions:
+- stance rage true
+- stance defensive false
+```
+
+### Threat:
+```yaml
+# Add threat
+- threat{amount=1000} @trigger
+
+# Taunt (force target)
+- taunt @trigger
+
+# Run AI selector
+- runaitargetselector{target=players} @self
+```
+
+---
+
+## 🎯 **ADVANCED CONDITIONS**
+
+### Field of View:
+```yaml
+TriggerConditions:
+- fieldofview{a=180;r=0} true   # Front attack
+- fieldofview{a=180;r=180} true # Back attack
+- fieldofview{angle=90} true    # Cone check
+```
+
+### Stance Check:
+```yaml
+Conditions:
+- stance rage true
+- stance defensive false
+```
+
+### Score Objectives:
+```yaml
+# Set score
+- settargetscore{o=phase;v=2} @self
+
+# Modify score
+- modifytargetscore{objective=counter;action=add;value=1} @self
+- modifytargetscore{objective=hp;action=subtract;value=10} @self
+
+# Check score
+Conditions:
+- score{o=phase;v=2} true
+- score{o=counter;v=<5} true
+- score{o=enraged;v=1} true
+```
+
+### Variable In Range:
+```yaml
+Conditions:
+- variableInRange{var=caster.hp;val=>500} true
+- variableInRange{var=caster.combo;val=1to3} true
+- variableInRange{var=target.threat;val=<100} true
+```
+
+### Target Checks:
+```yaml
+# Target within
+- targetwithin{d=8} true
+- targetnotwithin{d=12} true
+
+# Distance
+- distance{d=<10} true
+- distance{d=10to20} true
+- distance{d=>15} true
+
+# Y difference
+- ydiff{diff=-3to3} true
+```
+
+### Player Checks:
+```yaml
+- playerwithin{d=16} true
+- moving true
+- onground true
+- crouching false
+- sprinting true
+- blocking true
+- wearing{s=DIAMOND_HELMET} true
+- holding{i=DIAMOND_SWORD} true
+```
+
+### Combat Checks:
+```yaml
+- incombat true
+- offgcd true
+- onground true
+- altitude{a=>5} true
+- ismoving true
+```
+
+---
+
+## 📊 **BOSS BAR SYSTEM**
+
+### Create Boss Bar:
+```yaml
+- barCreate{
+    name="BOSS_NAME";
+    display="<caster.name>";
+    value=1.0;
+    color=PURPLE;
+    style=SEGMENTED_6
+  } @self
+```
+
+### Update Boss Bar:
+```yaml
+# Update HP
+- barSet{
+    name="BOSS_NAME";
+    display="<caster.name>";
+    value=<caster.hp>/<caster.mhp>;
+    color=PURPLE;
+    style=SOLID
+  } @self
+```
+
+### Color Flash (Damage Effect):
+```yaml
+BOSS_damage_flash:
+  Skills:
+  # Flash white
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=WHITE} @self
+  - delay 2
+  # Back to normal
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=PURPLE} @self
+  - delay 2
+  # Flash again
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=WHITE} @self
+  - delay 2
+  # Final
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=PURPLE} @self
+```
+
+### Phase Color Change:
+```yaml
+BOSS_phase_2:
+  Conditions:
+  - health{h=<50%} true
+  Skills:
+  - barSet{name="BOSS";color=RED;style=SOLID} @self
+  - message{m="&c&lPHASE 2!"} @PIR{r=50}
+```
+
+---
+
+## 🔊 **SOUND DESIGN**
+
+### Sound Syntax:
+```yaml
+- sound{
+    s=sound_name;        # Sound key
+    v=1;                 # Volume
+    p=1;                 # Pitch
+    sc=HOSTILE;          # Sound category
+    cd=1;                # Cooldown
+    delay=20             # Delay
+  } @self
+```
+
+### Sound Categories:
+- MASTER
+- MUSIC
+- RECORDS
+- WEATHER
+- BLOCKS
+- HOSTILE
+- NEUTRAL
+- PLAYERS
+- AMBIENT
+- VOICE
+
+### Examples:
+```yaml
+# Swing sound
+- sound{s=entity.player.attack.sweep;v=1;p=1.2} @self
+
+# Impact sound
+- sound{s=entity.generic.explode;v=2;p=0.8} @self
+
+# Monster sound
+- sound{s=entity.warden.roar;v=5;sc=HOSTILE;p=1} @self
+
+# Random pitch
+- sound{s=entity.zombie.hurt;v=1;p=<random.float.0.8to1.2>} @self
+
+# Delayed sound
+- sound{s=block.bell.use;v=2;delay=40} @self
+
+# Repeating sound
+- sound{s=entity.warden.heartbeat;v=1;repeat=5;repeati=20} @self
+```
+
+### Stop Sound:
+```yaml
+- stopsound{s=sound_name} @PIR{r=32}
+```
+
+---
+
+## ✨ **PARTICLE EFFECTS**
+
+### Particle Syntax:
+```yaml
+- effect:particles{
+    p=particle_type;
+    a=10;              # Amount
+    hs=1;              # Horizontal spread
+    vs=1;              # Vertical spread
+    y=0;               # Y offset
+    speed=1;           # Speed
+    repeat=5;          # Repeat times
+    repeati=2;         # Repeat interval
+    d=true;            # Directional
+    dir=0,1,0          # Direction vector
+  }
+```
+
+### Common Particles:
+```yaml
+# Flame
+- effect:particles{p=flame;a=50;hs=1;vs=1}
+
+# Explosion
+- effect:particles{p=explosion;a=1}
+- effect:particles{p=explosion_emitter;a=1}
+
+# Soul
+- effect:particles{p=soul;a=20;hs=0.5;vs=0.5}
+
+# Crit
+- effect:particles{p=crit;a=10;hs=0.3;vs=0.3}
+
+# Dust (Custom Color)
+- effect:particles{p=dust;color=#FF0000;size=1;a=20}
+- effect:particles{p=reddust;color=#00FF00;a=30}
+
+# Dust Transition
+- effect:particles{
+    p=dust_color_transition;
+    color1=#FF0000;
+    color2=#000000;
+    size=1;
+    a=50;
+    hs=1;
+    vs=1
+  }
+
+# Block particles
+- effect:particles{p=block_dust;material=STONE;a=20}
+- effect:particles{p=block_crack;b=ice;a=30}
+
+# Sweep attack
+- effect:particles{p=sweep_attack;a=1}
+```
+
+### Directional Particles:
+```yaml
+# Upward
+- effect:particles{
+    p=flame;
+    a=20;
+    d=true;
+    dir=0,1,0;
+    speed=0.2
+  }
+
+# Forward
+- effect:particles{
+    p=soul;
+    a=10;
+    d=true;
+    dir=0,0,1;
+    speed=0.5
+  }
+```
+
+---
+
+## 🎪 **SIGNAL SYSTEM** (Coordination)
+
+### Send Signal:
+```yaml
+# Boss signals minions
+- signal{s=ATTACK_NOW} @MIR{r=20;types=MINION_TYPE}
+- signal{s=PROTECT_BOSS} @MIR{r=15}
+```
+
+### Receive Signal:
+```yaml
+# Minion skill
+MINION_attack_on_signal:
+  Skills:
+  - damage{a=5} @NearestPlayer{r=10}
+  - lunge{v=2} @NearestPlayer{r=10}
+```
+
+### Example Coordination:
+```yaml
+BOSS_coordinated_strike:
+  Skills:
+  - message{m="&eCoordinated attack!"} @PIR{r=30}
+  # Boss charges
+  - state{s=charge_up} @self
+  - delay 40
+  # Signal minions
+  - signal{s=STRIKE_NOW} @MIR{r=25;types=MINION}
+  # Boss attacks
+  - damage{a=20} @PIR{r=8}
+
+MINION_strike:
+  Skills:
+  - lunge{v=3} @NearestPlayer{r=15}
+  - damage{a=8} @NearestPlayer{r=3}
+```
+
+---
+
+## 🏗️ **BLOCKMASK** (Arena Manipulation)
+
+### Syntax:
+```yaml
+- blockmask{
+    m=MATERIAL;      # Block type
+    r=5;             # Radius
+    d=10;            # Duration (ticks)
+    na=true;         # No air (only replace air)
+    oa=true;         # Only air (only replace non-air)
+    pattern=random   # Pattern
+  } @location
+```
+
+### Examples:
+
+**Lava Ring:**
+```yaml
+- blockmask{m=LAVA;r=12;d=200;na=true;oa=false} @ring{r=12;p=16;y=0}
+```
+
+**Light Blocks:**
+```yaml
+- blockmask{m=LIGHT;r=3;d=100;oa=true} @self
+```
+
+**Ice Floor:**
+```yaml
+- blockmask{m=ICE;r=10;d=300;na=true} @self
+```
+
+**Remove Blocks:**
+```yaml
+- blockmask{m=AIR;r=5;d=1;oa=true} @self
+```
+
+---
+
+## 🎮 **MOUNT/GRAB MECHANICS**
+
+### Mount Entity:
+```yaml
+# Simple mount
+- mount @target
+
+# Advanced mount
+- MountModel{
+    mid=model_id;
+    driver=false;
+    p=part_name;
+    dmg=true;
+    ad=false;
+    f=true;
+    mode=walking
+  } @target
+```
+
+### Dismount:
+```yaml
+# Dismount all
+- DismountAll @self
+
+# Specific part
+- DismountAll{mid=model;p=part;delay=100} @self
+```
+
+### Grab Example:
+```yaml
+BOSS_grab_attack:
+  Skills:
+  - state{s=grab} @self
+  # Try to grab
+  - totem{md=2;oH=GRAB_success;hr=2;vr=2;delay=20} @forward{f=2}
+  
+GRAB_success:
+  Skills:
+  - mount @trigger
+  - potion{type=WITHER;duration=100;level=2} @trigger
+  - delay 100
+  # Release
+  - DismountAll @self
+  - throw{v=10;vy=-4} @trigger
+```
+
+---
+
+## 💪 **COMPLETE BOSS EXAMPLE**
+
+Berdasarkan Tower Skeleton reference, tapi tanpa Model Engine:
+
+```yaml
+ADVANCED_BOSS:
+  Type: IRON_GOLEM
+  Display: "&c&lAdvanced Boss"
+  Health: 1000
+  Damage: 15
+  
+  Disguise:
+    Type: WITHER_SKELETON
+    Burning: true
+    CustomName: "&c&lBoss"
+  
+  Modules:
+    ThreatTable: true
+  
+  AITargetSelectors:
+  - 0 clear
+  - 1 attacker
+  - 2 players
+  
+  Options:
+    Silent: true
+    PreventOtherDrops: true
+    KnockbackResistance: 1
+    FollowRange: 64
+  
+  Skills:
+  # Init variables
+  - setvar{var=caster.phase;val=1} @self ~onSpawn
+  - setvar{var=caster.combo;val=0} @self ~onSpawn
+  - setvar{var=caster.enraged;val=false;type=STRING} @self ~onSpawn
+  
+  # Boss bar
+  - barCreate{name="BOSS";display="<caster.name>";value=1.0;color=PURPLE;style=SEGMENTED_6} @self ~onSpawn
+  
+  # Damage flash
+  - skill{s=BOSS_damage_flash} @self ~onDamaged
+  
+  # Phase transition
+  - skill{s=BOSS_phase_2} @self ~onTimer:10
+  
+  # Attacks
+  - skill{s=BOSS_slash_combo} @target ~onTimer:20
+  - skill{s=BOSS_charge_attack} @target ~onTimer:20
+  - skill{s=BOSS_ground_slam} @target ~onTimer:20
+  - skill{s=BOSS_grab_player} @target ~onTimer:20
+
+# Skills would continue with implementations...
+```
+
+---
+
+## 🎯 **BEST PRACTICES**
+
+1. **Always use offgcd condition** untuk skill attacks
+2. **Lock model** during animations
+3. **Use totem** untuk precise hitbox
+4. **Flash boss bar** on damage
+5. **Set speed to 0** during attacks, restore after
+6. **Use inline conditions** untuk dynamic behavior
+7. **Track everything** dengan variables
+8. **Signal coordination** untuk minions
+9. **Recoil effects** untuk player feedback
+10. **Sound + particles** untuk polish
+
+---
+
+**INGAT:** Ini semua berdasarkan referensi REAL boss yang sudah proven work!
+Tower Skeleton, Mega Warden, dan Pumpkin King adalah contoh implementation yang bagus! 🔥
