@@ -1,239 +1,300 @@
-// ADVANCED PROMPT - Complex mechanics for elite/nightmare AI
-export function getAdvancedPrompt(options) {
-    let prompt = `
-=== ADVANCED MECHANICS ===
+// ============================================
+// MODULE: Advanced Mechanics & Targeters
+// ============================================
 
-**1. STATE MACHINE SYSTEM**
-Boss should track states with variables:
+export function getAdvancedMechanics() {
+    return getTargetersReference() + getConditionsReference() + getTriggersReference() + getBossBarReference();
+}
+
+function getTargetersReference() {
+    return `
+=== TARGETERS (Complete List) ===
+
+**Self/Target:**
+- @self - Caster
+- @target - Current target
+- @trigger - Entity that triggered skill
+- @origin - Spawn location
+- @parent - Parent mob
+- @children{target=markers} - Summoned entities
+- @ModelPassengers - Mounted entities
+
+**Players:**
+- @PIR{r=10} - Players in radius
+- @PIR{r=20;sort=NEAREST} - Nearest player
+- @PIR{r=30;limit=1} - One random player
+- @NearestPlayer{r=16} - Nearest player
+- @PlayersInRadius{r=12} - All players in radius
+- @PlayersInCone{a=90;r=10} - Players in cone
+- @PlayersInLine{r=10;p=5} - Players in line
+
+**Entities:**
+- @EIR{r=10} - Entities in radius
+- @EIRR{min=5;max=15} - Entities in radius range
+- @LivingInRadius{r=12} - Living entities
+- @LivingInCone{a=180;r=12} - Cone area
+- @MIR{r=20;types=ZOMBIE} - Mobs in radius (specific type)
+- @MobsInRadius{r=30;types=MINION;a=>3} - Count check
+- @MobsInWorld{t=BOSS_TYPE} - All mobs of type in world
+
+**Locations:**
+- @forward{f=5} - 5 blocks forward
+- @forward{f=5;lp=true} - Lock to pitch
+- @Ring{r=8;p=8} - Circle of 8 points
+- @Ring{radius=5;points=12;y=2} - Elevated ring
+- @Circle{radius=10;points=16} - Horizontal circle
+- @Line{r=10;p=5} - Line pattern (5 points, 10 blocks)
+- @Cone{a=90;r=10;p=8} - Cone pattern
+- @selflocation - Caster location
+- @targetlocation - Target location
+- @RLNTE - Random location near target entity
+
+**Advanced:**
+- @Threat{limit=5} - Top 5 threat
+- @ThreatTable - All in threat table
+- @ThreatTablePlayers - Players in threat table
+- @LivingInFrustum{r=12;a=90} - In view frustum
+- @RandomLocationsNearOrigin{a=5;r=10;minr=5} - Random points
+
+**Filters & Sorting:**
 \`\`\`yaml
-# Initialize states
-- setvar{var=caster.phase;val=1;type=INTEGER} @self ~onSpawn
-- setvar{var=caster.stance;val=neutral;type=STRING} @self
-- setvar{var=caster.combo_count;val=0} @self
-- setvar{var=caster.enraged;val=false} @self
+@target{
+  conditions=[
+    - distance{d=<10}
+    - health{h=>50%}
+  ];
+  sort=NEAREST;
+  limit=1
+}
 
-# State transitions
-- setvar{var=caster.stance;val=aggressive} @self ?health{h=<50%}
-- skill{s=AGGRESSIVE_ATTACKS} @target ?varequals{var=caster.stance;val=aggressive}
-\`\`\``;
+# Sort options:
+sort=NEAREST
+sort=FURTHEST
+sort=LOWEST_HEALTH
+sort=HIGHEST_HEALTH
+sort=RANDOM
+sort=THREAT
 
-    if (options.phaseSystem) {
-        prompt += `
+# Limit:
+limit=1  # Only 1 target
+limit=5  # Max 5 targets
+\`\`\`
+`;
+}
 
-**2. MULTI-PHASE SYSTEM**
-Implement phase transitions:
+function getConditionsReference() {
+    return `
+=== CONDITIONS (Complete List) ===
+
+**Health & Damage:**
+- health{h=>50%} - Health above 50%
+- health{h=<500} - Health below 500
+- health{h=100to500} - Health between 100-500
+- healthPercent{h=>0.5} - Health above 50%
+- haspotioneffect{type=POISON} - Has poison effect
+- damage{a=>10;d=<100} - Damage taken check
+
+**Distance & Location:**
+- distance{d=<10} - Distance less than 10
+- distance{d=>5;d=<20} - Distance 5-20
+- distancefromtarget{d=<15} - Distance from target
+- altitude{a=>60;a=<100} - Y level check
+- biome{b=PLAINS} - In plains biome
+- inregion{r=region_name} - In WorldGuard region
+- incombat - In combat state
+- onground - On ground
+
+**Line of Sight & View:**
+- lineofsight - Has line of sight
+- fieldofview{a=90;r=0} - In 90° cone (front)
+- behind - Behind target
+- inside - Inside target block
+- lightlevel{l=>8} - Light level 8+
+
+**Entity Checks:**
+- entitytype{t=ZOMBIE} - Is zombie type
+- mythicmobtype{t=CUSTOM_MOB} - Is MythicMob type
+- samemob - Same mob type as caster
+- mobsinradius{r=20;types=MINION;a=>3} - Minion count
+- mobsinworld{t=BOSS;a=<2} - Max 2 bosses in world
+- targetwithin{d=10} - Has target within 10 blocks
+- playerwithin{d=15} - Player within 15 blocks
+
+**Player Checks:**
+- wearing{s=DIAMOND_HELMET} - Wearing diamond helmet
+- holding{m=DIAMOND_SWORD} - Holding diamond sword
+- hasinventoryspace - Has inventory space
+- permission{p=perm.node} - Has permission
+- score{o=objective;v=>10} - Scoreboard check
+
+**Variable Checks:**
+- varequals{var=caster.phase;val=2} - Variable equals 2
+- variableInRange{var=caster.counter;val=>5} - Counter > 5
+- variableInRange{var=caster.hp;val=10to50} - HP between 10-50
+- offgcd - Global cooldown ready
+
+**World & Time:**
+- day - Is daytime
+- night - Is nighttime
+- raining - Is raining
+- thunder - Is thundering
+- weather{w=CLEAR} - Weather check
+
+**Stance & State:**
+- stance{s=aggressive} - In aggressive stance
+- crouching - Is crouching
+- sprinting - Is sprinting
+- gliding - Is gliding
+- swimming - Is swimming
+- burning - Is on fire
+- frozen - Is frozen
+
+**Negation:**
+Add "!" before condition to negate:
+- !health{h=>50%} - Health NOT above 50%
+- !haspotioneffect{type=POISON} - Does NOT have poison
+`;
+}
+
+function getTriggersReference() {
+    return `
+=== TRIGGERS (Complete List) ===
+
+**Combat:**
+- ~onSpawn - When mob spawns
+- ~onFirstSpawn - Only first spawn (not respawn)
+- ~onLoad - When chunk loads
+- ~onDespawn - When despawning
+- ~onDeath - When dies
+- ~onAttack - When attacks
+- ~onDamaged - When takes damage
+- ~onExplode - When explodes
+- ~onTeleport - When teleports
+
+**Target:**
+- ~onChangeTarget - When changes target
+- ~onEnterCombat - When enters combat
+- ~onDropCombat - When leaves combat
+- ~onTargetDeath - When target dies
+
+**Timer:**
+- ~onTimer:20 - Every 20 ticks (1 second)
+- ~onTimer:100 - Every 5 seconds
+- ~onTimer:200 - Every 10 seconds
+
+**Interaction:**
+- ~onInteract - When player interacts
+- ~onRightClick - Right click interaction
+- ~onDamage - When damages something
+- ~onBlockBreak - When breaks block
+- ~onBlockPlace - When places block
+
+**Signal:**
+- ~onSignal:SIGNAL_NAME - When receives signal
+
+**Projectile:**
+- ~onShoot - When shoots projectile
+- ~onHit - When projectile hits
+
+**Player:**
+- ~onPlayerKill - When kills player
+- ~onKillPlayer - When kills player (alias)
+
+**Misc:**
+- ~onTrade - Villager trade
+- ~onBrew - Brewing stand
+- ~onCraft - Crafting table
+- ~onFish - Fishing
+`;
+}
+
+function getBossBarReference() {
+    return `
+=== BOSS BAR SYSTEM ===
+
+**Setup:**
 \`\`\`yaml
-BOSS_phase_transition:
-  Conditions:
-  - health{h=<50%} true
-  - varequals{var=caster.phase;val=1} true
-  Skills:
-  - message{m="&c<caster.name> &fenters &4Phase 2&f!"} @PIR{r=50}
-  - setvar{var=caster.phase;val=2} @self
-  - effect:particles{p=explosion;a=100;hs=3;vs=3} @self
-  - effect:sound{s=entity.ender_dragon.growl;v=2;p=0.5} @self
-  - potion{type=DAMAGE_RESISTANCE;duration=200;level=2} @self
-  - heal{amount=200} @self
-  - summon{type=MINION_TYPE;amount=3} @ring{r=8;p=3}
-  - gcd{ticks=100} @self  # Global cooldown
+MOB_NAME:
+  BossBar:
+    Enabled: true
+    Title: '&c&lBoss Name'
+    Color: RED
+    Style: SOLID
+    Range: 50
+\`\`\`
 
-# Phase 2 exclusive skills
-BOSS_phase2_ultimate:
-  Cooldown: 30
-  Conditions:
-  - varequals{var=caster.phase;val=2} true
-  Skills:
-  - message{m="&c&l<caster.name> &4uses ULTIMATE!"} @PIR{r=50}
-  - damage{amount=30;ignoreArmor=true} @PIR{r=15}
-  - throw{velocity=10;velocityY=5} @PIR{r=15}
-\`\`\``;
-    }
+**Colors:**
+PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE
 
-    if (options.variableStates) {
-        prompt += `
+**Styles:**
+SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20
 
-**3. COMBO SYSTEM**
-Chain attacks with variables:
+**Dynamic Update:**
 \`\`\`yaml
-BOSS_combo_1:
-  Cooldown: 20
+# Flash effect on damage
+BOSS_bar_flash:
   Skills:
-  - setvar{var=caster.combo;val=1} @self
-  - state{s=attack_1} @self
-  - damage{amount=10} @target
-  - delay 15
-  - skill{s=BOSS_combo_2} @self ?varequals{var=caster.combo;val=1}
-
-BOSS_combo_2:
-  Skills:
-  - setvar{var=caster.combo;val=2} @self
-  - state{s=attack_2} @self
-  - damage{amount=15} @target
-  - delay 20
-  - skill{s=BOSS_combo_3} @self ?varequals{var=caster.combo;val=2}
-
-BOSS_combo_3:
-  Skills:
-  - setvar{var=caster.combo;val=0} @self
-  - state{s=attack_3_finisher} @self
-  - damage{amount=25;ignoreArmor=true} @target
-  - throw{velocity=15;velocityY=5} @target
-  - effect:particles{p=crit;a=100} @target
-\`\`\``;
-    }
-
-    if (options.counterMechanics) {
-        prompt += `
-
-**4. COUNTER-ATTACK SYSTEM**
-React to player actions:
-\`\`\`yaml
-BOSS_counter_attack:
-  TriggerConditions:
-  - fieldofview{a=90;r=0} true  # Attacked from front
-  Conditions:
-  - stance{s=defensive} true
-  Skills:
-  - message{m="&e&lCOUNTERED!"} @trigger
-  - damage{amount=15;ignoreArmor=true} @trigger
-  - throw{velocity=8;velocityY=3} @trigger
-  - effect:particles{p=crit;a=50} @trigger
-  - variableMath{var=caster.counter_bonus;operation=ADD;value=1} @self
-
-# Punish repetitive actions
-BOSS_adaptive_defense:
-  Conditions:
-  - variableInRange{var=target.spam_count;val=>5} true
-  Skills:
-  - message{m="&c<caster.name> &fadapts to your pattern!"} @trigger
-  - potion{type=WEAKNESS;duration=100;level=2} @trigger
-  - damage{amount=20} @trigger
-\`\`\``;
-    }
-
-    if (options.adaptiveDifficulty) {
-        prompt += `
-
-**5. ADAPTIVE DIFFICULTY**
-Boss adjusts to fight duration:
-\`\`\`yaml
-# Track fight time
-- setvar{var=caster.fight_timer;val=0} @self ~onCombat
-- variableMath{var=caster.fight_timer;operation=ADD;value=1} @self ~onTimer:20
-
-# Enrage if fight too long
-BOSS_enrage_timeout:
-  Conditions:
-  - variableInRange{var=caster.fight_timer;val=>300}  # 5 minutes
-  Skills:
-  - message{m="&4<caster.name> &cENRAGES from exhaustion!"} @PIR{r=50}
-  - setvar{var=caster.enraged;val=true} @self
-  - potion{type=SPEED;duration=9999;level=1} @self
-  - potion{type=INCREASE_DAMAGE;duration=9999;level=1} @self
-  - setvar{var=caster.fight_timer;val=0} @self
-
-# Track no-damage streak
-- setvar{var=caster.no_hit_timer;val=0} @self ~onSpawn
-- variableMath{var=caster.no_hit_timer;operation=ADD;value=1} @self ~onTimer:20
-- setvar{var=caster.no_hit_timer;val=0} @self ~onDamaged
-
-# Buff if player too good
-- potion{type=REGENERATION;duration=100;level=2} @self ?variableInRange{var=caster.no_hit_timer;val=>60}
-\`\`\``;
-    }
-
-    if (options.minionCoordination) {
-        prompt += `
-
-**6. MINION COORDINATION**
-Boss and minions work together:
-\`\`\`yaml
-BOSS_rally_minions:
-  Cooldown: 30
-  Skills:
-  - message{m="&e<caster.name> &frallies the troops!"} @PIR{r=50}
-  - effect:sound{s=entity.ravager.roar;v=2;p=0.8} @self
-  - potion{type=INCREASE_DAMAGE;duration=200;level=1} @MIR{r=30;types=MINION_TYPE}
-  - potion{type=SPEED;duration=200;level=1} @MIR{r=30;types=MINION_TYPE}
-  - heal{amount=50} @MIR{r=30;types=MINION_TYPE}
-
-# Minions protect boss
-MINION_protect_boss:
-  Conditions:
-  - entitytype{t=BOSS_TYPE} @PIR{r=10}
-  TriggerConditions:
-  - entitytype{t=BOSS_TYPE} @target
-  Skills:
-  - taunt @trigger
-  - threat{amount=1000} @trigger
-  - message{m="&eMinion protects the boss!"} @trigger
-
-# Boss enrage when minions die
-BOSS_minion_death_rage:
-  Conditions:
-  - mobsinradius{r=30;types=MINION_TYPE;a=<2} true
-  Skills:
-  - message{m="&c<caster.name> &4RAGES &cat fallen allies!"} @PIR{r=50}
-  - setvar{var=caster.enraged;val=true} @self
-  - potion{type=SPEED;duration=9999;level=1} @self
-  - potion{type=INCREASE_DAMAGE;duration=9999;level=1} @self
-\`\`\``;
-    }
-
-    if (options.environmentalHazards) {
-        prompt += `
-
-**7. ENVIRONMENTAL HAZARDS**
-Boss manipulates arena:
-\`\`\`yaml
-BOSS_spawn_hazards:
-  Cooldown: 40
-  Skills:
-  - message{m="&cThe arena becomes deadly!"} @PIR{r=50}
-  - blockmask{m=MAGMA_BLOCK;r=5;d=10;na=true;oa=false} @ring{r=12;p=8}
-  - summon{type=HAZARD_MOB;amount=4} @ring{r=10;p=4}
-  - delay 200
-  - blockmask{m=AIR;r=5;d=10;na=true;oa=true} @ring{r=12;p=8}
-
-# Create safe zones
-BOSS_safe_zone:
-  Skills:
-  - blockmask{m=LIGHT;r=3;d=5;oa=true} @self
-  - effect:particles{p=totem;a=50;hs=3;vs=1;repeat=100;repeati=2} @self
-\`\`\``;
-    }
-
-    prompt += `
-
-**8. BOSS BAR MANAGEMENT**
-Visual feedback with boss bar:
-\`\`\`yaml
-# Update on damage
-- barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=RED} @self ~onDamaged
-- delay 5
-- barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=PURPLE} @self
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=WHITE} @self
+  - delay 2
+  - barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=RED} @self
 
 # Change color on phase
-- barSet{name="BOSS";value=<caster.hp>/<caster.mhp>;color=YELLOW} @self ?varequals{var=caster.phase;val=2}
+BOSS_phase_2:
+  Skills:
+  - setvar{var=caster.phase;val=2} @self
+  - barSet{name="BOSS";color=PURPLE;title="&d&lPHASE 2"} @self
+
+# Update value
+- barSet{name="BOSS";value=<caster.hp>/<caster.mhp>} @self ~onDamaged
 \`\`\`
 
-**9. MOVEMENT CONTROL**
-Lock movement during attacks:
+=== PRODUCTION TIPS ===
+
+**Performance:**
+1. Use cooldowns on expensive skills
+2. Limit particle amounts (20-50 max)
+3. Use conditions to prevent spam
+4. Despawn entities when done
+
+**Balance:**
+1. Always telegraph big attacks (1-3 seconds)
+2. Provide dodge windows after combos
+3. Scale HP/damage to server gear level
+4. Test with actual players
+
+**Polish:**
+1. Add sounds to all major actions
+2. Use particles for visual feedback
+3. Add messages for important events
+4. Screen shake for big hits
+
+**Common Patterns:**
 \`\`\`yaml
-- setspeed{speed=0} @self  # Stop movement
-- lockmodel{l=true} @self  # Lock rotation
-- delay 40  # Attack animation
-- setspeed{speed=0.3} @self  # Restore
-- lockmodel{l=false} @self
+# Stop movement during attack
+- setspeed{s=0} @self
+- lockmodel{l=true} @self
+# ... attack skills ...
+- setspeed{s=0.3;delay=40} @self
+- lockmodel{l=false;delay=40} @self
+
+# Combo system
+- setvar{var=caster.combo;val=1} @self
+- state{s=combo_1} @self
+- damage{a=10} @target
+- delay 20
+- skill{s=COMBO_2} @self ?varequals{var=caster.combo;val=1}
+
+# Phase transition
+- skill{s=PHASE_2} @self ?health{h=<50%} ?varequals{var=caster.phase;val=1}
 \`\`\`
 
-**10. SCREEN SHAKE EFFECT**
-Impactful hits with recoil:
-\`\`\`yaml
-- recoil{r=20;pitch=-0.8} @PIR{r=32}
-- delay 1
-- recoil{r=20;pitch=0.6} @PIR{r=32}
-\`\`\``;
+**Remember:**
+- NO ModelEngine (use LibDisguises only)
+- Escape special chars in JSON strings
+- Use \\n for newlines in output
+- Test all mechanics in-game
+- Balance for fun, not frustration
 
-    return prompt;
+GENERATE COMPLETE, PRODUCTION-READY CONFIGURATIONS NOW!
+`;
 }
