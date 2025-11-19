@@ -263,6 +263,7 @@ BOSS_ultimate:
   - throw{v=20;vy=5} @PIR{r=15}
 \`\`\`
 `;
+    }
 
     // ✅ NEW: Boss Bar System
     if (options.bossBarSystem) {

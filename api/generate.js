@@ -2,16 +2,16 @@
 // FILE UTAMA: api/generate.js (UPDATED v2.0)
 // ============================================
 // Import prompt modules
-import { buildMainPrompt } from './prompts/main.mjs';
-import { getDifficultyGuide } from './prompts/difficulty.mjs';
-import { getAIComplexityGuide } from './prompts/ai-complexity.mjs';
-import { getFeaturePrompts } from './prompts/features.mjs';
-import { getSyntaxReference } from './prompts/syntax.mjs';
-import { getAdvancedMechanics } from './prompts/advanced.mjs';
-import { getVisualEffectPrompts } from './prompts/visual-effects.mjs';
-import { getAIBehaviorPrompts } from './prompts/ai-behavior.mjs'; // NEW
-import { getHealingTowerPrompts } from './prompts/healing-tower.mjs'; // NEW
-import { getDeathRewardPrompts } from './prompts/death-rewards.mjs'; // NEW
+import { buildMainPrompt } from './prompts/main.js';
+import { getDifficultyGuide } from './prompts/difficulty.js';
+import { getAIComplexityGuide } from './prompts/ai-complexity.js';
+import { getFeaturePrompts } from './prompts/features.js';
+import { getSyntaxReference } from './prompts/syntax.js';
+import { getAdvancedMechanics } from './prompts/advanced.js';
+import { getVisualEffectPrompts } from './prompts/visual-effects.js';
+import { getAIBehaviorPrompts } from './prompts/ai-behavior.js'; // NEW
+import { getHealingTowerPrompts } from './prompts/healing-tower.js'; // NEW
+import { getDeathRewardPrompts } from './prompts/death-rewards.js'; // NEW
 
 export default async function handler(req, res) {
     // CORS headers
