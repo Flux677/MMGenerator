@@ -1,7 +1,6 @@
 {
   "name": "mythicmobs-generator",
   "version": "1.0.0",
-  "type": "module",
   "description": "AI-powered MythicMobs configuration generator using Claude API",
   "author": "Felty/Fitty",
   "license": "MIT",
