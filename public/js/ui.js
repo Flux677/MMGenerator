@@ -4,7 +4,40 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCopyButtons();
     initializeDownloadButton();
     initializeSummonMethodToggle(); // NEW
+    initializeNewFeatureToggles();
 });
+
+function initializeNewFeatureToggles() {
+    // AI Behavior Toggle
+    const aiBehaviorCheckbox = document.getElementById('customAIBehavior');
+    const aiBehaviorContainer = document.getElementById('aiBehaviorContainer');
+    
+    if (aiBehaviorCheckbox && aiBehaviorContainer) {
+        aiBehaviorCheckbox.addEventListener('change', (e) => {
+            aiBehaviorContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+    
+    // Healing Tower Toggle
+    const healingTowerCheckbox = document.getElementById('healingTowerSystem');
+    const healingTowerContainer = document.getElementById('healingTowerContainer');
+    
+    if (healingTowerCheckbox && healingTowerContainer) {
+        healingTowerCheckbox.addEventListener('change', (e) => {
+            healingTowerContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+    
+    // Boss Death Reward Toggle
+    const deathRewardCheckbox = document.getElementById('bossDeathReward');
+    const deathRewardContainer = document.getElementById('deathRewardContainer');
+    
+    if (deathRewardCheckbox && deathRewardContainer) {
+        deathRewardCheckbox.addEventListener('change', (e) => {
+            deathRewardContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+}
 
 // NEW: Toggle summon method dropdown visibility
 function initializeSummonMethodToggle() {

@@ -31,6 +31,21 @@ async function handleGenerate() {
     const summonMechanic = document.getElementById('summonMechanic')?.checked || false;
     const summonMethod = document.getElementById('summonMethod')?.value || 'proximity_trigger';
     
+    // NEW: Custom AI Behavior
+    const customAIBehavior = document.getElementById('customAIBehavior')?.checked || false;
+    const aiBehavior = customAIBehavior ? document.querySelector('input[name="ai_behavior"]:checked')?.value || 'aggressive_rush' : null;
+    
+    // NEW: Healing Tower System
+    const healingTowerSystem = document.getElementById('healingTowerSystem')?.checked || false;
+    const towerCount = document.getElementById('towerCount')?.value || '2';
+    const towerHealPower = document.getElementById('towerHealPower')?.value || 'medium';
+    const towerHP = document.getElementById('towerHP')?.value || '200';
+    const towerRespawn = document.getElementById('towerRespawn')?.value || '60';
+    
+    // NEW: Boss Death Reward
+    const bossDeathReward = document.getElementById('bossDeathReward')?.checked || false;
+    const deathReward = bossDeathReward ? document.querySelector('input[name="death_reward"]:checked')?.value || 'chest_spawn' : null;
+    
     // Validation
     if (!description) {
         UIHelpers.showError('Masukkan deskripsi mob terlebih dahulu!');
@@ -63,7 +78,19 @@ async function handleGenerate() {
             spawnAuraEffect,
             spawnHologram,
             summonMechanic,
-            summonMethod: summonMechanic ? summonMethod : null
+            summonMethod: summonMechanic ? summonMethod : null,
+            // NEW: AI Behavior
+            customAIBehavior,
+            aiBehavior,
+            // NEW: Healing Tower
+            healingTowerSystem,
+            towerCount: healingTowerSystem ? parseInt(towerCount) : null,
+            towerHealPower: healingTowerSystem ? towerHealPower : null,
+            towerHP: healingTowerSystem ? parseInt(towerHP) : null,
+            towerRespawn: healingTowerSystem ? towerRespawn : null,
+            // NEW: Death Reward
+            bossDeathReward,
+            deathReward
         }
     };
     
