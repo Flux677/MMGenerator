@@ -250,34 +250,26 @@ function generateDefaultSetupGuide(category) {
 
 ## Spawning
 /mm mobs spawn <INTERNAL_NAME> 1
-`;
-    if (options.customAIBehavior) {
-        guide += `\n## AI Behavior System
+
+4. Advanced Features 
+##AI Behavior System
 - Mob menggunakan AI behavior pattern: ${options.aiBehavior}
 - Behavior akan otomatis aktif saat combat
 - Perhatikan AI reaction terhadap player actions
-`;
-    }
 
-    if (options.healingTowerSystem) {
-        guide += `\n## Healing Tower System
+## Healing Tower System
 - ${options.towerCount} healing tower(s) akan spawn otomatis
 - Tower heal power: ${options.towerHealPower}
 - Tower HP: ${options.towerHP}
 - Respawn time: ${options.towerRespawn === 'false' ? 'No respawn' : options.towerRespawn + ' seconds'}
 - Players harus destroy towers untuk stop healing
-`;
-    }
 
-    if (options.bossDeathReward) {
-        guide += `\n## Boss Death Reward
+## Boss Death Reward
 - Reward type: ${options.deathReward}
 - Akan trigger otomatis saat boss mati
 - Reward muncul di lokasi boss death
-`;
-    }
 
-    guide += `\n## Testing
+## Testing
 1. Spawn mob in safe area
 2. Test all skills and mechanics
 3. Test new features (AI behavior, towers, rewards)

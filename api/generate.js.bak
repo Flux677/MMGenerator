@@ -9,6 +9,10 @@ import { getFeaturePrompts } from './prompts/features.js';
 import { getSyntaxReference } from './prompts/syntax.js';
 import { getAdvancedMechanics } from './prompts/advanced.js';
 import { getVisualEffectPrompts } from './prompts/visual-effects.js'; // NEW
+import { getAIBehaviorPrompts } from './prompts/ai-behavior.js'; // NEW
+import { getHealingTowerPrompts } from './prompts/healing-tower.js'; // NEW
+import { getDeathRewardPrompts } from './prompts/death-rewards.js'; // NEW
+
 
 export default async function handler(req, res) {
     // CORS headers
@@ -140,6 +144,19 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
         summonMechanic: options.summonMechanic,
         summonMethod: options.summonMethod
     });
+    // NEW: AI Behavior prompts
+    const aiBehaviorPrompts = options.customAIBehavior ? getAIBehaviorPrompts(options.aiBehavior) : '';
+    
+    // NEW: Healing Tower prompts
+    const healingTowerPrompts = options.healingTowerSystem ? getHealingTowerPrompts({
+        towerCount: options.towerCount,
+        towerHealPower: options.towerHealPower,
+        towerHP: options.towerHP,
+        towerRespawn: options.towerRespawn
+    }) : '';
+    
+    // NEW: Death Reward prompts
+    const deathRewardPrompts = options.bossDeathReward ? getDeathRewardPrompts(options.deathReward) : '';
     
     // Gabungkan semua
     let fullPrompt = `${mainPrompt}
@@ -155,6 +172,18 @@ ${featurePrompts}
 
 ${visualEffects ? `=== VISUAL SPAWN EFFECTS ===
 ${visualEffects}
+` : ''}
+
+${aiBehaviorPrompts ? `=== CUSTOM AI BEHAVIOR SYSTEM ===
+${aiBehaviorPrompts}
+` : ''}
+
+${healingTowerPrompts ? `=== HEALING TOWER SYSTEM ===
+${healingTowerPrompts}
+` : ''}
+
+${deathRewardPrompts ? `=== BOSS DEATH REWARD SYSTEM ===
+${deathRewardPrompts}
 ` : ''}
 
 === MYTHICMOBS SYNTAX REFERENCE ===
@@ -179,10 +208,12 @@ CRITICAL REQUIREMENTS:
 3. Base Type MUST be vanilla Minecraft mob
 4. Production-ready configurations
 5. Return valid JSON format
-${options.summonMechanic ? `6. Include SPAWNER mob configuration for summon mechanic
-7. Add detailed setup instructions for spawner placement` : ''}
+${options.customAIBehavior ? `6. Implement ${options.aiBehavior} AI behavior pattern thoroughly` : ''}
+${options.healingTowerSystem ? `7. Create ${options.towerCount} healing tower(s) with ${options.towerHealPower} heal power` : ''}
+${options.bossDeathReward ? `8. Implement ${options.deathReward} death reward mechanic` : ''}
+${options.summonMechanic ? `9. Include SPAWNER mob configuration for summon mechanic` : ''}
 
-Generate COMPLETE, WORKING configuration NOW!`;
+Generate COMPLETE, WORKING, ADVANCED configuration NOW!`;
 
     return fullPrompt;
 }
@@ -219,13 +250,42 @@ function generateDefaultSetupGuide(category) {
 
 ## Spawning
 /mm mobs spawn <INTERNAL_NAME> 1
+`;
+    if (options.customAIBehavior) {
+        guide += `\n## AI Behavior System
+- Mob menggunakan AI behavior pattern: ${options.aiBehavior}
+- Behavior akan otomatis aktif saat combat
+- Perhatikan AI reaction terhadap player actions
+`;
+    }
 
-## Testing
+    if (options.healingTowerSystem) {
+        guide += `\n## Healing Tower System
+- ${options.towerCount} healing tower(s) akan spawn otomatis
+- Tower heal power: ${options.towerHealPower}
+- Tower HP: ${options.towerHP}
+- Respawn time: ${options.towerRespawn === 'false' ? 'No respawn' : options.towerRespawn + ' seconds'}
+- Players harus destroy towers untuk stop healing
+`;
+    }
+
+    if (options.bossDeathReward) {
+        guide += `\n## Boss Death Reward
+- Reward type: ${options.deathReward}
+- Akan trigger otomatis saat boss mati
+- Reward muncul di lokasi boss death
+`;
+    }
+
+    guide += `\n## Testing
 1. Spawn mob in safe area
-2. Test all skills
-3. Adjust stats if needed
+2. Test all skills and mechanics
+3. Test new features (AI behavior, towers, rewards)
+4. Adjust stats if needed
 
 ## Resources
 - Wiki: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home
 - LibDisguises: https://www.spigotmc.org/resources/libsdisguises.81/`;
+
+    return guide;
 }
