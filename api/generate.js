@@ -1,5 +1,5 @@
 // ============================================
-// FILE UTAMA: api/generate.js (UPDATED)
+// FILE UTAMA: api/generate.js (UPDATED v2.0)
 // ============================================
 // Import prompt modules
 import { buildMainPrompt } from './prompts/main.js';
@@ -8,7 +8,10 @@ import { getAIComplexityGuide } from './prompts/ai-complexity.js';
 import { getFeaturePrompts } from './prompts/features.js';
 import { getSyntaxReference } from './prompts/syntax.js';
 import { getAdvancedMechanics } from './prompts/advanced.js';
-import { getVisualEffectPrompts } from './prompts/visual-effects.js'; // NEW
+import { getVisualEffectPrompts } from './prompts/visual-effects.js';
+import { getAIBehaviorPrompts } from './prompts/ai-behavior.js'; // NEW
+import { getHealingTowerPrompts } from './prompts/healing-tower.js'; // NEW
+import { getDeathRewardPrompts } from './prompts/death-rewards.js'; // NEW
 
 export default async function handler(req, res) {
     // CORS headers
@@ -52,7 +55,7 @@ export default async function handler(req, res) {
         // Build prompt dari modules
         const prompt = buildCompletePrompt(category, difficulty, aiComplexity, description, options);
 
-        console.log('Calling Claude API...');
+        console.log('Calling Claude API with advanced features...');
 
         const response = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
@@ -99,7 +102,7 @@ export default async function handler(req, res) {
                 mobs: extractSection(textContent, 'mobs') || textContent,
                 skills: extractSection(textContent, 'skills') || '',
                 items: options.includeItems ? extractSection(textContent, 'items') : '',
-                setup_guide: extractSection(textContent, 'setup') || generateDefaultSetupGuide(category)
+                setup_guide: extractSection(textContent, 'setup') || generateDefaultSetupGuide(category, options)
             };
         }
 
@@ -107,7 +110,7 @@ export default async function handler(req, res) {
             mobs: result.mobs || '# No mobs configuration generated',
             skills: result.skills || '# No skills configuration generated',
             items: result.items || '# No items configuration',
-            setup_guide: result.setup_guide || generateDefaultSetupGuide(category)
+            setup_guide: result.setup_guide || generateDefaultSetupGuide(category, options)
         };
 
         return res.status(200).json(finalResult);
@@ -120,7 +123,7 @@ export default async function handler(req, res) {
 }
 
 // ============================================
-// FUNCTION: Build Complete Prompt (UPDATED)
+// FUNCTION: Build Complete Prompt (UPDATED v2.0)
 // ============================================
 function buildCompletePrompt(category, difficulty, aiComplexity, description, options) {
     options = options || {};
@@ -133,13 +136,27 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
     const syntaxRef = getSyntaxReference();
     const advancedMech = getAdvancedMechanics();
     
-    // NEW: Visual effects prompts
+    // Visual effects prompts
     const visualEffects = getVisualEffectPrompts({
         spawnAuraEffect: options.spawnAuraEffect,
         spawnHologram: options.spawnHologram,
         summonMechanic: options.summonMechanic,
         summonMethod: options.summonMethod
     });
+    
+    // NEW: AI Behavior prompts
+    const aiBehaviorPrompts = options.customAIBehavior ? getAIBehaviorPrompts(options.aiBehavior) : '';
+    
+    // NEW: Healing Tower prompts
+    const healingTowerPrompts = options.healingTowerSystem ? getHealingTowerPrompts({
+        towerCount: options.towerCount,
+        towerHealPower: options.towerHealPower,
+        towerHP: options.towerHP,
+        towerRespawn: options.towerRespawn
+    }) : '';
+    
+    // NEW: Death Reward prompts
+    const deathRewardPrompts = options.bossDeathReward ? getDeathRewardPrompts(options.deathReward) : '';
     
     // Gabungkan semua
     let fullPrompt = `${mainPrompt}
@@ -155,6 +172,18 @@ ${featurePrompts}
 
 ${visualEffects ? `=== VISUAL SPAWN EFFECTS ===
 ${visualEffects}
+` : ''}
+
+${aiBehaviorPrompts ? `=== CUSTOM AI BEHAVIOR SYSTEM ===
+${aiBehaviorPrompts}
+` : ''}
+
+${healingTowerPrompts ? `=== HEALING TOWER SYSTEM ===
+${healingTowerPrompts}
+` : ''}
+
+${deathRewardPrompts ? `=== BOSS DEATH REWARD SYSTEM ===
+${deathRewardPrompts}
 ` : ''}
 
 === MYTHICMOBS SYNTAX REFERENCE ===
@@ -179,10 +208,12 @@ CRITICAL REQUIREMENTS:
 3. Base Type MUST be vanilla Minecraft mob
 4. Production-ready configurations
 5. Return valid JSON format
-${options.summonMechanic ? `6. Include SPAWNER mob configuration for summon mechanic
-7. Add detailed setup instructions for spawner placement` : ''}
+${options.customAIBehavior ? `6. Implement ${options.aiBehavior} AI behavior pattern thoroughly` : ''}
+${options.healingTowerSystem ? `7. Create ${options.towerCount} healing tower(s) with ${options.towerHealPower} heal power` : ''}
+${options.bossDeathReward ? `8. Implement ${options.deathReward} death reward mechanic` : ''}
+${options.summonMechanic ? `9. Include SPAWNER mob configuration for summon mechanic` : ''}
 
-Generate COMPLETE, WORKING configuration NOW!`;
+Generate COMPLETE, WORKING, ADVANCED configuration NOW!`;
 
     return fullPrompt;
 }
@@ -201,8 +232,8 @@ function extractSection(text, sectionName) {
     return null;
 }
 
-function generateDefaultSetupGuide(category) {
-    return `# Setup Guide - ${category.toUpperCase()}
+function generateDefaultSetupGuide(category, options) {
+    let guide = `# Setup Guide - ${category.toUpperCase()} (Advanced Edition)
 
 ## Installation
 1. Install plugins:
@@ -219,13 +250,43 @@ function generateDefaultSetupGuide(category) {
 
 ## Spawning
 /mm mobs spawn <INTERNAL_NAME> 1
+`;
 
-## Testing
+    if (options.customAIBehavior) {
+        guide += `\n## AI Behavior System
+- Mob menggunakan AI behavior pattern: ${options.aiBehavior}
+- Behavior akan otomatis aktif saat combat
+- Perhatikan AI reaction terhadap player actions
+`;
+    }
+
+    if (options.healingTowerSystem) {
+        guide += `\n## Healing Tower System
+- ${options.towerCount} healing tower(s) akan spawn otomatis
+- Tower heal power: ${options.towerHealPower}
+- Tower HP: ${options.towerHP}
+- Respawn time: ${options.towerRespawn === 'false' ? 'No respawn' : options.towerRespawn + ' seconds'}
+- Players harus destroy towers untuk stop healing
+`;
+    }
+
+    if (options.bossDeathReward) {
+        guide += `\n## Boss Death Reward
+- Reward type: ${options.deathReward}
+- Akan trigger otomatis saat boss mati
+- Reward muncul di lokasi boss death
+`;
+    }
+
+    guide += `\n## Testing
 1. Spawn mob in safe area
-2. Test all skills
-3. Adjust stats if needed
+2. Test all skills and mechanics
+3. Test new features (AI behavior, towers, rewards)
+4. Adjust stats if needed
 
 ## Resources
 - Wiki: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home
 - LibDisguises: https://www.spigotmc.org/resources/libsdisguises.81/`;
+
+    return guide;
 }

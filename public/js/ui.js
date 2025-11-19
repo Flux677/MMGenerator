@@ -1,12 +1,46 @@
-// UI Event Handlers (UPDATED)
+// UI Event Handlers (UPDATED v2.0)
 document.addEventListener('DOMContentLoaded', () => {
     initializeTabs();
     initializeCopyButtons();
     initializeDownloadButton();
-    initializeSummonMethodToggle(); // NEW
+    initializeSummonMethodToggle();
+    initializeNewFeatureToggles(); // NEW
 });
 
-// NEW: Toggle summon method dropdown visibility
+// NEW: Initialize all new feature toggles
+function initializeNewFeatureToggles() {
+    // AI Behavior Toggle
+    const aiBehaviorCheckbox = document.getElementById('customAIBehavior');
+    const aiBehaviorContainer = document.getElementById('aiBehaviorContainer');
+    
+    if (aiBehaviorCheckbox && aiBehaviorContainer) {
+        aiBehaviorCheckbox.addEventListener('change', (e) => {
+            aiBehaviorContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+    
+    // Healing Tower Toggle
+    const healingTowerCheckbox = document.getElementById('healingTowerSystem');
+    const healingTowerContainer = document.getElementById('healingTowerContainer');
+    
+    if (healingTowerCheckbox && healingTowerContainer) {
+        healingTowerCheckbox.addEventListener('change', (e) => {
+            healingTowerContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+    
+    // Boss Death Reward Toggle
+    const deathRewardCheckbox = document.getElementById('bossDeathReward');
+    const deathRewardContainer = document.getElementById('deathRewardContainer');
+    
+    if (deathRewardCheckbox && deathRewardContainer) {
+        deathRewardCheckbox.addEventListener('change', (e) => {
+            deathRewardContainer.style.display = e.target.checked ? 'block' : 'none';
+        });
+    }
+}
+
+// Toggle summon method dropdown visibility
 function initializeSummonMethodToggle() {
     const summonCheckbox = document.getElementById('summonMechanic');
     const summonMethodContainer = document.getElementById('summonMethodContainer');
@@ -188,10 +222,13 @@ function setLoading(isLoading) {
             'Menganalisis request...',
             'Membaca dokumentasi MythicMobs...',
             'Generating mob configuration...',
-            'Generating skills...',
+            'Generating skills & mechanics...',
+            'Creating AI behavior patterns...',
+            'Setting up healing towers...',
+            'Creating death rewards...',
             'Creating spawn effects...',
             'Optimizing syntax...',
-            'Finalizing...'
+            'Finalizing configuration...'
         ];
         
         let index = 0;
@@ -200,7 +237,7 @@ function setLoading(isLoading) {
                 progressText.textContent = messages[index];
                 index++;
             }
-        }, 2000);
+        }, 1500);
         
         // Store interval ID for cleanup
         btn.dataset.intervalId = interval;

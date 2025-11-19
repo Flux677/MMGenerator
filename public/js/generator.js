@@ -1,4 +1,4 @@
-// Main Generator Logic (UPDATED)
+// Main Generator Logic (UPDATED v2.0)
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.addEventListener('click', handleGenerate);
@@ -12,10 +12,11 @@ async function handleGenerate() {
     const difficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'balanced';
     const aiComplexity = document.querySelector('input[name="ai_complexity"]:checked')?.value || 'advanced';
     const description = document.getElementById('description').value.trim();
+    
     const includeItems = document.getElementById('includeItems').checked;
-    const includeDropTables = document.getElementById('includeDropTables').checked;
-    const advancedAI = document.getElementById('advancedAI')?.checked || false;
-    const particleEffects = document.getElementById('particleEffects').checked;
+    const includeDropTables = document.getElementById('includeDropTables')?.checked || false;
+    const bossBarSystem = document.getElementById('bossBarSystem')?.checked || false;
+    const soundSystem = document.getElementById('soundSystem')?.checked || false;
     
     // Advanced mechanics
     const phaseSystem = document.getElementById('phaseSystem')?.checked || false;
@@ -25,11 +26,26 @@ async function handleGenerate() {
     const adaptiveDifficulty = document.getElementById('adaptiveDifficulty')?.checked || false;
     const counterMechanics = document.getElementById('counterMechanics')?.checked || false;
     
-    // NEW: Visual spawn effects
+    // Visual spawn effects
     const spawnAuraEffect = document.getElementById('spawnAuraEffect')?.checked || false;
     const spawnHologram = document.getElementById('spawnHologram')?.checked || false;
     const summonMechanic = document.getElementById('summonMechanic')?.checked || false;
     const summonMethod = document.getElementById('summonMethod')?.value || 'proximity_trigger';
+    
+    // NEW: Custom AI Behavior
+    const customAIBehavior = document.getElementById('customAIBehavior')?.checked || false;
+    const aiBehavior = customAIBehavior ? document.querySelector('input[name="ai_behavior"]:checked')?.value || 'aggressive_rush' : null;
+    
+    // NEW: Healing Tower System
+    const healingTowerSystem = document.getElementById('healingTowerSystem')?.checked || false;
+    const towerCount = document.getElementById('towerCount')?.value || '2';
+    const towerHealPower = document.getElementById('towerHealPower')?.value || 'medium';
+    const towerHP = document.getElementById('towerHP')?.value || '200';
+    const towerRespawn = document.getElementById('towerRespawn')?.value || '60';
+    
+    // NEW: Boss Death Reward
+    const bossDeathReward = document.getElementById('bossDeathReward')?.checked || false;
+    const deathReward = bossDeathReward ? document.querySelector('input[name="death_reward"]:checked')?.value || 'chest_spawn' : null;
     
     // Validation
     if (!description) {
@@ -51,19 +67,32 @@ async function handleGenerate() {
         options: {
             includeItems,
             includeDropTables,
+            bossBarSystem,      // ✅ NEW
+            soundSystem,        // 
             advancedAI: advancedAI || aiComplexity !== 'basic',
-            particleEffects,
             phaseSystem,
             variableStates,
             environmentalHazards,
             minionCoordination,
             adaptiveDifficulty,
             counterMechanics,
-            // NEW options
+            // Visual effects
             spawnAuraEffect,
             spawnHologram,
             summonMechanic,
-            summonMethod: summonMechanic ? summonMethod : null
+            summonMethod: summonMechanic ? summonMethod : null,
+            // NEW: AI Behavior
+            customAIBehavior,
+            aiBehavior,
+            // NEW: Healing Tower
+            healingTowerSystem,
+            towerCount: healingTowerSystem ? parseInt(towerCount) : null,
+            towerHealPower: healingTowerSystem ? towerHealPower : null,
+            towerHP: healingTowerSystem ? parseInt(towerHP) : null,
+            towerRespawn: healingTowerSystem ? towerRespawn : null,
+            // NEW: Death Reward
+            bossDeathReward,
+            deathReward
         }
     };
     
@@ -93,7 +122,7 @@ async function handleGenerate() {
         
         // Display results
         UIHelpers.displayResults(data);
-        UIHelpers.showSuccess('Mob berhasil di-generate!');
+        UIHelpers.showSuccess('Mob berhasil di-generate dengan fitur advanced!');
         
     } catch (error) {
         console.error('Generation error:', error);
