@@ -396,7 +396,10 @@
                         <input type="checkbox" id="includeItems">
                         <span>📦 Generate Items/Drops</span>
                     </label>
-                    
+                    <label>
+                        <input type="checkbox" id="includeDropTables">
+                        <span>🎲 Generate Drop Tables</span>
+                    </label>
                     <label>
                         <input type="checkbox" id="advancedAI">
                         <span>🧠 AI Mechanics (Threat Table, dll)</span>

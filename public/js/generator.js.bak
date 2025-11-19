@@ -14,9 +14,7 @@ async function handleGenerate() {
     const description = document.getElementById('description').value.trim();
     const includeItems = document.getElementById('includeItems').checked;
     const advancedAI = document.getElementById('advancedAI')?.checked || false;
-    const bossBarSystem = document.getElementById('bossBarSystem')?.checked || false;
-    const soundSystem = document.getElementById('soundSystem')?.checked || false;
-    
+    const particleEffects = document.getElementById('particleEffects').checked;
     
     // Advanced mechanics
     const phaseSystem = document.getElementById('phaseSystem')?.checked || false;
@@ -67,8 +65,7 @@ async function handleGenerate() {
         options: {
             includeItems,
             advancedAI: advancedAI || aiComplexity !== 'basic',
-            bossBarSystem,      // ✅ NEW
-            soundSystem,
+            particleEffects,
             phaseSystem,
             variableStates,
             environmentalHazards,

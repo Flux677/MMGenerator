@@ -263,6 +263,180 @@ BOSS_ultimate:
   - throw{v=20;vy=5} @PIR{r=15}
 \`\`\`
 `;
+
+    // ✅ NEW: Boss Bar System
+    if (options.bossBarSystem) {
+        features += `
+=== DYNAMIC BOSS BAR SYSTEM (ENABLED) ===
+Implement professional boss bar dengan dynamic updates:
+
+**Setup:**
+\`\`\`yaml
+MOB_NAME:
+  BossBar:
+    Enabled: true
+    Title: '&c&l⚔ BOSS NAME'
+    Color: RED
+    Style: SOLID
+    Range: 50
+\`\`\`
+
+**Colors:** RED, PINK, BLUE, GREEN, YELLOW, PURPLE, WHITE
+
+**Styles:** SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20
+
+**Dynamic Updates:**
+\`\`\`yaml
+# Update on damage
+BOSS_update_bar:
+  Skills:
+  - barSet{name="BOSS_NAME";value=<caster.hp>/<caster.mhp>} @self ~onDamaged
+
+# Flash effect
+BOSS_bar_flash:
+  Skills:
+  - barSet{name="BOSS_NAME";color=WHITE} @self
+  - delay 2
+  - barSet{name="BOSS_NAME";color=RED} @self
+
+# Phase color change
+BOSS_phase_2_bar:
+  Conditions:
+  - health{h=<50%} true
+  - varequals{var=caster.phase;val=1} true
+  Skills:
+  - barSet{name="BOSS_NAME";color=PURPLE;title="&d&lPHASE 2 - ENRAGED"} @self
+  - setvar{var=caster.phase;val=2} @self
+
+# Phase 3
+BOSS_phase_3_bar:
+  Conditions:
+  - health{h=<20%} true
+  - varequals{var=caster.phase;val=2} true
+  Skills:
+  - barSet{name="BOSS_NAME";color=YELLOW;title="&e&lFINAL PHASE";style=SEGMENTED_20} @self
+  - setvar{var=caster.phase;val=3} @self
+\`\`\`
+
+**Integration:** Trigger bar updates on damage, phase transitions, and special attacks.
+`;
+    }
+
+    // ✅ NEW: Sound System
+    if (options.soundSystem) {
+        features += `
+=== CUSTOM SOUND SYSTEM (ENABLED) ===
+Generate atmospheric sound design dengan layered audio:
+
+**Ambient Sounds (Looping):**
+\`\`\`yaml
+BOSS_ambient_loop:
+  Skills:
+  - sound{s=entity.warden.heartbeat;v=1;p=0.8} @PIR{r=30} ~onTimer:40
+  - sound{s=ambient.cave;v=0.5;p=0.5} @PIR{r=30} ~onTimer:60
+  - sound{s=entity.warden.listening;v=0.6;p=0.6} @PIR{r=20} ~onTimer:80
+\`\`\`
+
+**Attack Sounds:**
+\`\`\`yaml
+BOSS_attack_sound:
+  Skills:
+  - sound{s=entity.ender_dragon.growl;v=2;p=1} @self
+  - sound{s=entity.wither.shoot;v=1.5;p=0.8;delay=5} @self
+  - sound{s=entity.generic.explode;v=1;p=0.8;delay=10} @self
+\`\`\`
+
+**Phase Transition Sounds:**
+\`\`\`yaml
+BOSS_phase_transition_sound:
+  Skills:
+  - sound{s=entity.wither.spawn;v=2;p=0.5} @PIR{r=50}
+  - sound{s=entity.lightning_bolt.thunder;v=1.5;p=0.8;delay=10} @PIR{r=50}
+  - sound{s=ui.toast.challenge_complete;v=1;p=1;delay=20} @PIR{r=50}
+\`\`\`
+
+**Directional Audio (Stalking/Positioning):**
+\`\`\`yaml
+# Sound plays from boss location to player (directional)
+- sound{s=entity.warden.ambient;v=0.8;p=0.6} @target
+- sound{s=entity.ghast.scream;v=0.5;p=0.3} @NearestPlayer{r=20}
+\`\`\`
+
+**Sound Categories by Theme:**
+- **Horror:** entity.warden.heartbeat, entity.ghast.ambient, ambient.cave
+- **Epic:** entity.ender_dragon.growl, entity.wither.spawn, block.bell.use
+- **Elemental Fire:** block.fire.ambient, entity.blaze.ambient, item.firecharge.use
+- **Elemental Ice:** block.glass.break, entity.player.hurt_freeze, block.snow.step
+- **Elemental Lightning:** entity.lightning_bolt.thunder, block.amethyst_block.chime
+- **Elemental Shadow:** entity.enderman.ambient, block.portal.ambient, entity.phantom.ambient
+
+**Integration:** Match sounds to mob theme, layer for depth, use pitch/volume variations.
+`;
+    }
+
+    // ✅ IMPROVED: Drop Tables
+    if (options.includeDropTables) {
+        features += `
+=== ADVANCED DROP TABLES (ENABLED) ===
+Generate sophisticated loot system dengan conditions:
+
+**Basic Drops:**
+\`\`\`yaml
+Drops:
+- DIAMOND 2-4 0.5
+- EMERALD 1-2 0.3
+- exp 100-200 1.0
+\`\`\`
+
+**Conditional Drops:**
+\`\`\`yaml
+Drops:
+# Higher drop if killed with specific item
+- RARE_ITEM 1 0.05  # Base 5%
+- RARE_ITEM 1 0.15 ~onKill ?holding{m=DIAMOND_SWORD}  # 15% with diamond sword
+- RARE_ITEM 1 0.25 ~onKill ?wearing{s=DIAMOND_HELMET}  # 25% with full diamond
+
+# Drop only during specific conditions
+- MOON_ESSENCE 1-2 0.8 ?night  # Only drops at night
+- SUN_CRYSTAL 1-2 0.8 ?day  # Only drops during day
+- STORM_FRAGMENT 1 1.0 ?thunder  # Guaranteed drop during thunderstorm
+
+# Looting enchantment bonus
+- ENDER_PEARL 1-3 0.8
+- ENDER_PEARL 1 0.2 ~onKill ?looting{l=>1}  # +1 per looting level
+\`\`\`
+
+**Drop Pools (Mythic-style):**
+\`\`\`yaml
+DropTable:
+  legendary_pool:
+    TotalItems: 1
+    MinItems: 0
+    Bonus: 0.1
+    BonusLuckLevel: 1
+    Items:
+    - LEGENDARY_SWORD 1 0.3
+    - LEGENDARY_AXE 1 0.3
+    - LEGENDARY_BOW 1 0.4
+  
+  rare_materials_pool:
+    TotalItems: 2-3
+    Items:
+    - BOSS_SCALE 1-3 0.8
+    - BOSS_FANG 1-2 0.6
+    - BOSS_HEART 1 0.2
+\`\`\`
+
+**Custom Item Drops:**
+\`\`\`yaml
+Drops:
+- CUSTOM_ITEM_NAME 1 0.15  # Reference to Items.yml
+- BOSS_TROPHY 1 1.0  # Guaranteed drop
+\`\`\`
+
+Generate drops yang fair tapi exciting, dengan rare items sebagai chase reward.
+`;
+    
     }
 
     return features || '# No special features enabled';
