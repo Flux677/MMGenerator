@@ -77,6 +77,213 @@
                     </label>
                 </div>
             </section>
+            
+            <!-- NEW: Custom AI Behavior System -->
+            <section class="card feature-card">
+                <div class="card-header-new">
+                    <h2>🤖 Custom AI Behavior</h2>
+                    <span class="new-badge">NEW!</span>
+                </div>
+                <div class="feature-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="customAIBehavior">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Enable Custom AI Behavior Pattern</span>
+                    </label>
+                </div>
+                
+                <div id="aiBehaviorContainer" style="display:none;">
+                    <p class="feature-description">Pilih pola behavior untuk mengontrol gaya bertarung mob:</p>
+                    <div class="behavior-grid">
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="aggressive_rush" checked>
+                            <div class="behavior-content">
+                                <span class="behavior-icon">⚡</span>
+                                <span class="behavior-title">Aggressive Rush</span>
+                                <small>Selalu menyerang, high pressure, tidak mundur</small>
+                            </div>
+                        </label>
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="tactical_kiting">
+                            <div class="behavior-content">
+                                <span class="behavior-icon">🎯</span>
+                                <span class="behavior-title">Tactical Kiting</span>
+                                <small>Jaga jarak, ranged attack, mundur saat dekat</small>
+                            </div>
+                        </label>
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="defensive_counter">
+                            <div class="behavior-content">
+                                <span class="behavior-icon">🛡️</span>
+                                <span class="behavior-title">Defensive Counter</span>
+                                <small>Block serangan, counter saat di hit, punish aggro</small>
+                            </div>
+                        </label>
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="berserker_mode">
+                            <div class="behavior-content">
+                                <span class="behavior-icon">😡</span>
+                                <span class="behavior-title">Berserker Mode</span>
+                                <small>Enrage di low HP, makin cepat & kuat saat damaged</small>
+                            </div>
+                        </label>
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="hit_and_run">
+                            <div class="behavior-content">
+                                <span class="behavior-icon">💨</span>
+                                <span class="behavior-title">Hit and Run</span>
+                                <small>Serang lalu teleport, guerrilla tactics</small>
+                            </div>
+                        </label>
+                        <label class="behavior-option">
+                            <input type="radio" name="ai_behavior" value="summoner_support">
+                            <div class="behavior-content">
+                                <span class="behavior-icon">👥</span>
+                                <span class="behavior-title">Summoner Support</span>
+                                <small>Stay back, summon minions, buff allies</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Healing Tower System -->
+            <section class="card feature-card">
+                <div class="card-header-new">
+                    <h2>🗼 Healing Tower System</h2>
+                    <span class="new-badge">NEW!</span>
+                </div>
+                <div class="feature-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="healingTowerSystem">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Enable Healing Tower Mechanic</span>
+                    </label>
+                </div>
+                
+                <div id="healingTowerContainer" style="display:none;">
+                    <p class="feature-description">Tower yang auto-heal boss, spawn dalam radius 20 blocks, bisa dihancurkan player untuk stop healing.</p>
+                    <div class="tower-config">
+                        <div class="config-row">
+                            <label class="config-label">
+                                <span class="config-icon">🔢</span>
+                                Tower Count:
+                            </label>
+                            <select id="towerCount" class="select-enhanced">
+                                <option value="1">1 Tower (Easy)</option>
+                                <option value="2" selected>2 Towers (Normal)</option>
+                                <option value="3">3 Towers (Hard)</option>
+                                <option value="4">4 Towers (Insane)</option>
+                            </select>
+                        </div>
+                        <div class="config-row">
+                            <label class="config-label">
+                                <span class="config-icon">💚</span>
+                                Heal Power:
+                            </label>
+                            <select id="towerHealPower" class="select-enhanced">
+                                <option value="weak">Weak (5 HP/sec)</option>
+                                <option value="medium" selected>Medium (10 HP/sec)</option>
+                                <option value="strong">Strong (20 HP/sec)</option>
+                                <option value="extreme">Extreme (50 HP/sec)</option>
+                            </select>
+                        </div>
+                        <div class="config-row">
+                            <label class="config-label">
+                                <span class="config-icon">❤️</span>
+                                Tower HP:
+                            </label>
+                            <select id="towerHP" class="select-enhanced">
+                                <option value="100">Glass (100 HP)</option>
+                                <option value="200" selected>Normal (200 HP)</option>
+                                <option value="500">Tanky (500 HP)</option>
+                                <option value="1000">Fortress (1000 HP)</option>
+                            </select>
+                        </div>
+                        <div class="config-row">
+                            <label class="config-label">
+                                <span class="config-icon">🔄</span>
+                                Tower Respawn:
+                            </label>
+                            <select id="towerRespawn" class="select-enhanced">
+                                <option value="false">No Respawn</option>
+                                <option value="30">30 seconds</option>
+                                <option value="60" selected>60 seconds</option>
+                                <option value="120">2 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Boss Death Rewards -->
+            <section class="card feature-card">
+                <div class="card-header-new">
+                    <h2>🎁 Boss Death Reward</h2>
+                    <span class="new-badge">NEW!</span>
+                </div>
+                <div class="feature-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="bossDeathReward">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Enable Custom Death Reward</span>
+                    </label>
+                </div>
+                
+                <div id="deathRewardContainer" style="display:none;">
+                    <p class="feature-description">Pilih apa yang terjadi ketika boss mati (selain drop items):</p>
+                    <div class="reward-grid">
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="chest_spawn" checked>
+                            <div class="reward-content">
+                                <span class="reward-icon">📦</span>
+                                <span class="reward-title">Treasure Chest Spawn</span>
+                                <small>Spawn chest berisi loot di lokasi boss mati</small>
+                            </div>
+                        </label>
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="portal_spawn">
+                            <div class="reward-content">
+                                <span class="reward-icon">🌀</span>
+                                <span class="reward-title">Portal Spawn</span>
+                                <small>Portal muncul untuk teleport ke reward room</small>
+                            </div>
+                        </label>
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="npc_merchant">
+                            <div class="reward-content">
+                                <span class="reward-icon">🧙</span>
+                                <span class="reward-title">NPC Merchant Spawn</span>
+                                <small>Merchant NPC muncul dengan exclusive trades</small>
+                            </div>
+                        </label>
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="arena_transform">
+                            <div class="reward-content">
+                                <span class="reward-icon">✨</span>
+                                <span class="reward-title">Arena Transform</span>
+                                <small>Arena berubah, spawn platforms atau loot areas</small>
+                            </div>
+                        </label>
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="buff_station">
+                            <div class="reward-content">
+                                <span class="reward-icon">⚡</span>
+                                <span class="reward-title">Buff Station</span>
+                                <small>Spawn totem yang memberikan buff ke players</small>
+                            </div>
+                        </label>
+                        <label class="reward-option">
+                            <input type="radio" name="death_reward" value="fireworks_celebration">
+                            <div class="reward-content">
+                                <span class="reward-icon">🎆</span>
+                                <span class="reward-title">Victory Celebration</span>
+                                <small>Fireworks & particle show, drops rain dari sky</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
 
             <!-- AI Complexity -->
             <section class="card">
