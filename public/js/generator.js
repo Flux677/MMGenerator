@@ -15,6 +15,7 @@ async function handleGenerate() {
     
     const includeItems = document.getElementById('includeItems').checked;
     const includeDropTables = document.getElementById('includeDropTables')?.checked || false;
+    const advancedAI = document.getElementById('advancedAI')?.checked || false;
     const bossBarSystem = document.getElementById('bossBarSystem')?.checked || false;
     const soundSystem = document.getElementById('soundSystem')?.checked || false;
     
