@@ -1,7 +1,9 @@
 // ============================================
-// FILE UTAMA: api/generate.js (UPDATED v2.0)
+// FILE: api/generate.js (IMPROVED v3.0)
+// Main generator with enhanced prompt system
 // ============================================
-// Import prompt modules
+
+// Import improved prompt modules
 import { buildMainPrompt } from './prompts/main.js';
 import { getDifficultyGuide } from './prompts/difficulty.js';
 import { getAIComplexityGuide } from './prompts/ai-complexity.js';
@@ -9,9 +11,9 @@ import { getFeaturePrompts } from './prompts/features.js';
 import { getSyntaxReference } from './prompts/syntax.js';
 import { getAdvancedMechanics } from './prompts/advanced.js';
 import { getVisualEffectPrompts } from './prompts/visual-effects.js';
-import { getAIBehaviorPrompts } from './prompts/ai-behavior.js'; // NEW
-import { getHealingTowerPrompts } from './prompts/healing-tower.js'; // NEW
-import { getDeathRewardPrompts } from './prompts/death-rewards.js'; // NEW
+import { getAIBehaviorPrompts } from './prompts/ai-behavior.js';
+import { getHealingTowerPrompts } from './prompts/healing-tower.js';
+import { getDeathRewardPrompts } from './prompts/death-rewards.js';
 
 export default async function handler(req, res) {
     // CORS headers
@@ -52,10 +54,24 @@ export default async function handler(req, res) {
             });
         }
 
-        // Build prompt dari modules
-        const prompt = buildCompletePrompt(category, difficulty, aiComplexity, description, options);
+        // Validate description length
+        if (description.length < 20) {
+            return res.status(400).json({
+                error: 'Description too short. Please provide more details (at least 20 characters).'
+            });
+        }
 
-        console.log('Calling Claude API with advanced features...');
+        // Build enhanced prompt
+        const prompt = buildEnhancedPrompt(category, difficulty, aiComplexity, description, options);
+
+        console.log('Calling Claude API with enhanced prompt system...');
+        console.log('Features enabled:', {
+            phaseSystem: options.phaseSystem,
+            customAI: options.customAIBehavior,
+            healingTowers: options.healingTowerSystem,
+            deathReward: options.bossDeathReward,
+            visualEffects: options.spawnAuraEffect || options.spawnHologram || options.summonMechanic
+        });
 
         const response = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
@@ -67,7 +83,7 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model: 'claude-sonnet-4-20250514',
                 max_tokens: 16000,
-                temperature: 0.7,
+                temperature: 0.8,  // Higher creativity for better mob designs
                 messages: [{
                     role: 'user',
                     content: prompt
@@ -87,7 +103,7 @@ export default async function handler(req, res) {
             .map(block => block.text)
             .join('\n');
 
-        // Parse JSON
+        // Parse JSON response
         let result;
         try {
             const jsonMatch = textContent.match(/```json\s*\n([\s\S]*?)\n```/);
@@ -98,6 +114,9 @@ export default async function handler(req, res) {
             }
         } catch (parseError) {
             console.error('JSON Parse Error:', parseError);
+            console.log('Raw response:', textContent.substring(0, 500));
+            
+            // Fallback: Extract sections manually
             result = {
                 mobs: extractSection(textContent, 'mobs') || textContent,
                 skills: extractSection(textContent, 'skills') || '',
@@ -113,9 +132,20 @@ export default async function handler(req, res) {
             setup_guide: result.setup_guide || generateDefaultSetupGuide(category, options)
         };
 
+        // Add metadata
+        finalResult.metadata = {
+            generated_at: new Date().toISOString(),
+            category,
+            difficulty,
+            aiComplexity,
+            features: Object.keys(options).filter(k => options[k] === true)
+        };
+
+        console.log('Generation successful!');
         return res.status(200).json(finalResult);
 
     } catch (error) {
+        console.error('Generation error:', error);
         return res.status(500).json({ 
             error: error.message || 'Failed to generate configuration'
         });
@@ -123,12 +153,12 @@ export default async function handler(req, res) {
 }
 
 // ============================================
-// FUNCTION: Build Complete Prompt (UPDATED v2.0)
+// BUILD ENHANCED PROMPT (v3.0)
 // ============================================
-function buildCompletePrompt(category, difficulty, aiComplexity, description, options) {
+function buildEnhancedPrompt(category, difficulty, aiComplexity, description, options) {
     options = options || {};
     
-    // Ambil data dari modules
+    // Core prompts
     const mainPrompt = buildMainPrompt(category, difficulty, aiComplexity, description);
     const diffGuide = getDifficultyGuide(difficulty);
     const aiGuide = getAIComplexityGuide(aiComplexity);
@@ -136,7 +166,7 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
     const syntaxRef = getSyntaxReference();
     const advancedMech = getAdvancedMechanics();
     
-    // Visual effects prompts
+    // Visual effects
     const visualEffects = getVisualEffectPrompts({
         spawnAuraEffect: options.spawnAuraEffect,
         spawnHologram: options.spawnHologram,
@@ -144,10 +174,10 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
         summonMethod: options.summonMethod
     });
     
-    // NEW: AI Behavior prompts
+    // Custom AI Behavior
     const aiBehaviorPrompts = options.customAIBehavior ? getAIBehaviorPrompts(options.aiBehavior) : '';
     
-    // NEW: Healing Tower prompts
+    // Healing Tower System
     const healingTowerPrompts = options.healingTowerSystem ? getHealingTowerPrompts({
         towerCount: options.towerCount,
         towerHealPower: options.towerHealPower,
@@ -155,70 +185,109 @@ function buildCompletePrompt(category, difficulty, aiComplexity, description, op
         towerRespawn: options.towerRespawn
     }) : '';
     
-    // NEW: Death Reward prompts
+    // Death Reward System
     const deathRewardPrompts = options.bossDeathReward ? getDeathRewardPrompts(options.deathReward) : '';
     
-    // Gabungkan semua
+    // Build final prompt
     let fullPrompt = `${mainPrompt}
 
-=== DIFFICULTY GUIDE ===
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFFICULTY PRESET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${diffGuide}
 
-=== AI COMPLEXITY GUIDE ===
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AI COMPLEXITY LEVEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${aiGuide}
 
-=== FEATURES TO IMPLEMENT ===
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENABLED FEATURES & MECHANICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${featurePrompts}
 
-${visualEffects ? `=== VISUAL SPAWN EFFECTS ===
+${visualEffects ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VISUAL SPAWN EFFECTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${visualEffects}
 ` : ''}
 
-${aiBehaviorPrompts ? `=== CUSTOM AI BEHAVIOR SYSTEM ===
+${aiBehaviorPrompts ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CUSTOM AI BEHAVIOR SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${aiBehaviorPrompts}
 ` : ''}
 
-${healingTowerPrompts ? `=== HEALING TOWER SYSTEM ===
+${healingTowerPrompts ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HEALING TOWER MECHANIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${healingTowerPrompts}
 ` : ''}
 
-${deathRewardPrompts ? `=== BOSS DEATH REWARD SYSTEM ===
+${deathRewardPrompts ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BOSS DEATH REWARD SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${deathRewardPrompts}
 ` : ''}
 
-=== MYTHICMOBS SYNTAX REFERENCE ===
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MYTHICMOBS SYNTAX REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${syntaxRef}
 
-=== ADVANCED MECHANICS ===
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADVANCED MECHANICS & PATTERNS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${advancedMech}
 
-OUTPUT FORMAT (STRICT JSON):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL REQUIREMENTS CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ LibDisguises ONLY (NO ModelEngine)
+✅ Valid MythicMobs syntax (100% accurate)
+✅ Base Type = vanilla Minecraft mob
+✅ ALL major attacks telegraphed (difficulty appropriate)
+✅ Production-ready configurations
+✅ Return valid JSON format ONLY
+${options.phaseSystem ? '✅ Multi-phase system with dramatic transitions' : ''}
+${options.customAIBehavior ? `✅ ${options.aiBehavior} AI behavior pattern` : ''}
+${options.healingTowerSystem ? `✅ ${options.towerCount} healing tower(s) with ${options.towerHealPower} heal power` : ''}
+${options.bossDeathReward ? `✅ ${options.deathReward} death reward mechanic` : ''}
+${options.summonMechanic ? '✅ Custom summon mechanic with SPAWNER mob' : ''}
+${options.bossBarSystem ? '✅ Dynamic Boss Bar with phase updates' : ''}
+${options.soundSystem ? '✅ Layered sound design for atmosphere' : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+JSON OUTPUT FORMAT (STRICT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Return ONLY this JSON structure:
+
 \`\`\`json
 {
-  "mobs": "# Complete Mobs.yml configuration\\n...",
+  "mobs": "# Complete Mobs.yml configuration\\n# Use \\\\n for newlines\\n...",
   "skills": "# Complete Skills.yml configuration\\n...",
   "items": "${options.includeItems ? '# Items.yml configuration\\n...' : '# Items not requested'}",
-  "setup_guide": "# Setup guide\\n..."
+  "setup_guide": "# Setup guide with installation steps\\n..."
 }
 \`\`\`
 
-CRITICAL REQUIREMENTS:
-1. Use LibDisguises for visual (NO ModelEngine)
-2. Valid MythicMobs syntax only
-3. Base Type MUST be vanilla Minecraft mob
-4. Production-ready configurations
-5. Return valid JSON format
-${options.customAIBehavior ? `6. Implement ${options.aiBehavior} AI behavior pattern thoroughly` : ''}
-${options.healingTowerSystem ? `7. Create ${options.towerCount} healing tower(s) with ${options.towerHealPower} heal power` : ''}
-${options.bossDeathReward ? `8. Implement ${options.deathReward} death reward mechanic` : ''}
-${options.summonMechanic ? `9. Include SPAWNER mob configuration for summon mechanic` : ''}
+⚠️ CRITICAL REMINDERS:
+- Create configs that are MEMORABLE and EXCITING
+- Telegraph attacks clearly (visual + audio + text)
+- Include recovery windows after big attacks
+- Balance challenge with fairness
+- Make boss feel ALIVE and REACTIVE
+- Add EMOTIONAL MOMENTS (tension, climax, relief)
+- Think CINEMATIC - this is an experience, not just stats
 
-Generate COMPLETE, WORKING, ADVANCED configuration NOW!`;
+NOW GENERATE THE MOST EPIC, TENSION-FILLED BOSS CONFIGURATION!`;
 
     return fullPrompt;
 }
 
-// Helper functions
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
 function extractSection(text, sectionName) {
     const patterns = [
         new RegExp(`# ${sectionName}[\\s\\S]*?(?=\\n#|$)`, 'i'),
@@ -233,60 +302,113 @@ function extractSection(text, sectionName) {
 }
 
 function generateDefaultSetupGuide(category, options) {
-    let guide = `# Setup Guide - ${category.toUpperCase()} (Advanced Edition)
+    const features = [];
+    if (options.customAIBehavior) features.push(`Custom AI: ${options.aiBehavior}`);
+    if (options.healingTowerSystem) features.push(`Healing Towers: ${options.towerCount}x`);
+    if (options.bossDeathReward) features.push(`Death Reward: ${options.deathReward}`);
+    if (options.summonMechanic) features.push(`Summon: ${options.summonMethod}`);
+    
+    let guide = `# MythicMobs Setup Guide
+# Category: ${category.toUpperCase()}
+# Generated: ${new Date().toLocaleString()}
 
-## Installation
-1. Install plugins:
-   - MythicMobs (latest)
-   - LibDisguises (latest)
-   - ProtocolLib (dependency)
+## Prerequisites
+✅ Minecraft Server (Spigot/Paper 1.16+)
+✅ MythicMobs plugin (latest version recommended)
+✅ LibDisguises plugin (latest version)
+✅ ProtocolLib (dependency for LibDisguises)
 
-2. Copy configurations:
-   - Mobs.yml → plugins/MythicMobs/Mobs/
-   - Skills.yml → plugins/MythicMobs/Skills/
-   - Items.yml → plugins/MythicMobs/Items/
+## Installation Steps
 
-3. Reload: /mm reload
+1. **Install Required Plugins**
+   - Download MythicMobs from SpigotMC
+   - Download LibDisguises from SpigotMC  
+   - Download ProtocolLib from SpigotMC
+   - Place all .jar files in /plugins/ folder
+   - Restart server
+
+2. **Copy Configuration Files**
+   \`\`\`
+   Mobs.yml    → /plugins/MythicMobs/Mobs/
+   Skills.yml  → /plugins/MythicMobs/Skills/
+   ${options.includeItems ? 'Items.yml   → /plugins/MythicMobs/Items/' : ''}
+   \`\`\`
+
+3. **Reload MythicMobs**
+   \`\`\`
+   /mm reload
+   \`\`\`
+   Check console for any errors.
 
 ## Spawning
-/mm mobs spawn <INTERNAL_NAME> 1
-`;
+\`\`\`
+/mm mobs spawn <MOB_INTERNAL_NAME> 1
+\`\`\`
 
-    if (options.customAIBehavior) {
-        guide += `\n## AI Behavior System
-- Mob menggunakan AI behavior pattern: ${options.aiBehavior}
-- Behavior akan otomatis aktif saat combat
-- Perhatikan AI reaction terhadap player actions
-`;
-    }
+## Enabled Features
+${features.length > 0 ? features.map(f => `- ${f}`).join('\n') : '- Standard boss configuration'}
 
-    if (options.healingTowerSystem) {
-        guide += `\n## Healing Tower System
-- ${options.towerCount} healing tower(s) akan spawn otomatis
-- Tower heal power: ${options.towerHealPower}
+${options.healingTowerSystem ? `
+## Healing Tower System
+- ${options.towerCount} tower(s) spawn automatically within 20 blocks
+- Towers heal boss every second (${options.towerHealPower} heal power)
+- Players MUST destroy towers to stop healing
 - Tower HP: ${options.towerHP}
-- Respawn time: ${options.towerRespawn === 'false' ? 'No respawn' : options.towerRespawn + ' seconds'}
-- Players harus destroy towers untuk stop healing
-`;
-    }
+${options.towerRespawn !== 'false' ? `- Respawn Time: ${options.towerRespawn} seconds` : '- No respawn (destroy once)'}
+` : ''}
 
-    if (options.bossDeathReward) {
-        guide += `\n## Boss Death Reward
-- Reward type: ${options.deathReward}
-- Akan trigger otomatis saat boss mati
-- Reward muncul di lokasi boss death
-`;
-    }
+${options.bossDeathReward ? `
+## Boss Death Reward
+- Type: ${options.deathReward.replace('_', ' ')}
+- Triggers automatically on boss death
+- See in-game for reward details
+` : ''}
 
-    guide += `\n## Testing
-1. Spawn mob in safe area
-2. Test all skills and mechanics
-3. Test new features (AI behavior, towers, rewards)
-4. Adjust stats if needed
+${options.summonMechanic ? `
+## Custom Summon System
+- Method: ${options.summonMethod.replace('_', ' ')}
+- Refer to mob configuration for setup details
+- DO NOT use /mm mobs spawn for this boss!
+` : ''}
+
+## Testing Checklist
+- [ ] Mob spawns without errors
+- [ ] All skills function correctly
+- [ ] Phase transitions work (if enabled)
+- [ ] Visual effects display properly
+- [ ] Sound effects play correctly
+- [ ] Custom features work as intended
+- [ ] Balance feels appropriate
+
+## Troubleshooting
+**Mob doesn't spawn:**
+- Check /mm reload for syntax errors
+- Verify base Type is valid vanilla mob
+- Check console logs
+
+**Skills not working:**
+- Verify skill names match in Mobs.yml
+- Check cooldown values
+- Test triggers with /mm test
+
+**Disguise not showing:**
+- Ensure LibDisguises + ProtocolLib installed
+- Check /disguise command works
+- Verify skin name exists (for player disguises)
+
+**Performance issues:**
+- Reduce particle amounts
+- Increase skill cooldowns
+- Limit active mob count
 
 ## Resources
-- Wiki: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home
-- LibDisguises: https://www.spigotmc.org/resources/libsdisguises.81/`;
+- MythicMobs Wiki: https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home
+- LibDisguises: https://www.spigotmc.org/resources/libsdisguises.81/
+- Support: Check MythicMobs Discord
+
+## Credits
+Generated by MythicMobs Generator v3.0
+Powered by Claude AI`;
 
     return guide;
 }

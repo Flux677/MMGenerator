@@ -1,473 +1,337 @@
-# 🗡️ MythicMobs Generator
+# 🗡️ MythicMobs Generator v3.0
 
-Generator otomatis untuk membuat konfigurasi MythicMobs custom menggunakan Claude AI.
+> **Generate EPIC, tension-filled custom mobs untuk MythicMobs plugin dengan AI**
 
-## ✨ Features
+[![Version](https://img.shields.io/badge/version-3.0-blue.svg)](https://github.com/Flux677/MMGenerator)
+[![Status](https://img.shields.io/badge/status-production-brightgreen.svg)](https://mm-generator-seven.vercel.app/)
 
-- ✅ Generate Boss, Mini Boss, dan Mob biasa
-- ✅ Generate Boss dengan minion untuk dungeon
-- ✅ Terintegrasi dengan LibDisguises
-- ✅ Syntax 100% sesuai MythicMobs Wiki
-- ✅ Skill kompleks dan balanced
-- ✅ UI simple dan minimalis
-- ✅ Download semua config sekaligus
+## ✨ What's New in v3.0?
 
-## 📋 Prerequisites
+### 🎬 Cinematic Boss Fights
+- **Dramatic phase transitions** dengan visual buildup & screen effects
+- **Telegraph system** - semua attack punya warning yang jelas
+- **Recovery windows** - openings setelah big attacks
+- **Emotional pacing** - tension → climax → release rhythm
 
-### Server Requirements
-- Minecraft Server (Spigot/Paper 1.16+)
-- **MythicMobs** plugin (latest version)
-- **LibDisguises** plugin (latest version)
-- **ProtocolLib** (dependency untuk LibDisguises)
+### 🧠 Enhanced AI Systems
+- **6 Custom AI Behavior Patterns:**
+  - ⚡ Aggressive Rush (relentless pressure)
+  - 🎯 Tactical Kiting (ranged combat)
+  - 🛡️ Defensive Counter (block & punish)
+  - 😡 Berserker Mode (enrage mechanics)
+  - 💨 Hit and Run (guerrilla tactics)
+  - 👥 Summoner Support (minion focus)
 
-### Development Requirements
-- Node.js 18+ (untuk local development)
-- Vercel Account (untuk deployment)
-- Claude API Key dari Anthropic
+### 🗼 New Mechanics
+- **Healing Tower System** - destroyable towers yang heal boss
+- **Boss Death Rewards** - 6 types: chest, portal, NPC, arena transform, buff station, fireworks
+- **Custom Summon Methods** - proximity trigger, item interact, altar, ritual
+- **Visual Spawn Effects** - magic circles, portals, buildup sequences
 
-## 🚀 Deployment ke Vercel
+### 🎚️ Difficulty Presets (Improved!)
+1. **⚖️ Balanced** - Fair challenge untuk average players
+2. **💪 Hard** - Complex patterns, tight DPS checks
+3. **😈 Nightmare** - GLASS CANNON: low HP, devastating one-shots dengan long telegraphs
+4. **🧠 Psychological** - Horror experience: darkness, stalking, jumpscares
+5. **🔥 Souls-like** - Pattern-based combat, telegraphed, learnable, punishing tapi FAIR
+6. **🕷️ Overwhelming** - Swarm tactics dengan constant minion spam
 
-### Step 1: Persiapan Project
+## 🚀 Quick Start
 
-1. Clone atau download project ini
-2. Struktur folder harus seperti ini:
+### Prerequisites
+- Node.js 18+
+- Vercel Account (free tier OK)
+- Claude API Key dari [Anthropic](https://console.anthropic.com/)
 
+### Installation
+
+1. **Clone repository:**
+```bash
+git clone https://github.com/Flux677/MMGenerator.git
+cd MMGenerator
 ```
-mythicmobs-generator/
-├── public/
-│   ├── index.html
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       ├── generator.js
-│       └── ui.js
-├── api/
-│   └── generate.js
-├── vercel.json
-└── README.md
-```
 
-### Step 2: Deploy ke Vercel
-
-1. **Install Vercel CLI** (opsional):
+2. **Deploy ke Vercel:**
 ```bash
 npm install -g vercel
-```
-
-2. **Login ke Vercel**:
-```bash
 vercel login
-```
-
-3. **Deploy Project**:
-```bash
 vercel
 ```
 
-ATAU upload langsung via Vercel Dashboard:
-- Buka https://vercel.com/
-- Klik "Add New Project"
-- Import dari Git atau Upload folder
+3. **Set Environment Variable:**
+   - Go to Vercel Dashboard → Project Settings → Environment Variables
+   - Add: `ANTHROPIC_API_KEY` = `your-api-key-here`
+   - Redeploy project
 
-### Step 3: Set Environment Variables
+4. **Access your generator:**
+   - URL: `https://your-project.vercel.app`
 
-**PENTING**: Jangan taruh API key di file!
+## 📖 User Guide
 
-1. Buka project di Vercel Dashboard
-2. Go to **Settings → Environment Variables**
-3. Add variable:
-   - **Name**: `ANTHROPIC_API_KEY`
-   - **Value**: `sk-ant-...` (API key Claude Anda)
-   - **Environment**: Production, Preview, Development (pilih semua)
+### Basic Usage
 
-4. Klik **Save**
-5. **Redeploy** project (penting agar env var aktif)
+1. **Select Category:**
+   - 👑 Boss - Single boss dengan complex skills
+   - 🏰 Boss + Dungeon - Boss + 2-3 coordinated minions
+   - ⚔️ Mini Boss - Medium difficulty boss
+   - 🌍 Normal Mob - World exploration mob
 
-### Step 4: Testing
+2. **Choose Difficulty Preset:**
+   - Determines HP, damage, telegraph timing
+   - Each preset has unique mechanics philosophy
 
-1. Buka URL Vercel Anda (e.g., `your-project.vercel.app`)
-2. Test generate mob
-3. Check console browser jika ada error
+3. **Select AI Complexity:**
+   - 🎯 Advanced - ThreatTable, smart targeting
+   - 🧬 Elite - Variable-based decisions, state machine
+   - 👁️ Nightmare AI - Learns patterns, adapts
 
-## 🔒 Private Deployment
+4. **Enable Features (Optional):**
+   - 📊 Multi-Phase System
+   - 🔢 Variable State Machine
+   - 🌋 Environmental Hazards
+   - 🤝 Minion Coordination
+   - 📈 Adaptive Difficulty
+   - 🛡️ Counter-Attack System
 
-Untuk membuat deployment private (tidak bisa diakses publik):
-
-### Option 1: Vercel Password Protection
-
-1. Go to **Settings → General**
-2. Scroll ke **Deployment Protection**
-3. Enable **Vercel Authentication**
-4. Sekarang hanya orang dengan akses Vercel team yang bisa akses
-
-### Option 2: Custom Password Protection
-
-Tambahkan basic auth di `vercel.json`:
-
-```json
-{
-  "routes": [
-    {
-      "src": "/(.*)",
-      "headers": {
-        "WWW-Authenticate": "Basic realm=\"Protected\""
-      },
-      "status": 401
-    }
-  ]
-}
+5. **Write Description:**
+```
+Example: "Create ice wizard boss inspired by Elsa from Frozen. 
+Skills: freeze area (slow + damage), ice prison (trap players), 
+summon ice minions, teleport when low HP. Use STRAY as base mob 
+with ice wizard skin. Spawn dengan blue magic circle dan snow particles."
 ```
 
-Atau buat middleware di `api/auth.js`.
+6. **Generate!**
 
-## 📖 Cara Penggunaan
+### Advanced Features
 
-### 1. Generate Mob
+#### 🤖 Custom AI Behavior
+Enable untuk control pola bertarung mob:
+- **Aggressive Rush**: Selalu menyerang, high pressure
+- **Tactical Kiting**: Jaga jarak, ranged attacks
+- **Defensive Counter**: Block & punish aggression
+- **Berserker Mode**: Enrage saat low HP
+- **Hit and Run**: Attack → teleport away
+- **Summoner Support**: Summon & buff minions
 
-1. Pilih **kategori mob**:
-   - **Boss**: Boss tunggal dengan skill kompleks
-   - **Boss + Dungeon Mobs**: Boss + 2-3 minion
-   - **Mini Boss**: Boss menengah
-   - **Mob Biasa**: Mob untuk world
+#### 🗼 Healing Tower System
+- Configure tower count (1-4)
+- Set heal power (weak/medium/strong/extreme)
+- Adjust tower HP & respawn time
+- Players harus destroy towers atau boss sustain healing
 
-2. Tulis **deskripsi detail**:
-```
-Buat ice wizard boss yang bisa:
-- Summon ice minion
-- Skill freeze area (slow + damage)
-- Teleport saat low HP
-- Base mob: STRAY
-- Disguise: player skin "IceWizard"
-```
+#### 🎁 Boss Death Rewards
+Choose what happens when boss dies:
+- 📦 **Treasure Chest** - Loot chest spawns
+- 🌀 **Portal** - Teleport to reward room
+- 🧙 **NPC Merchant** - Victory trades
+- ✨ **Arena Transform** - Platforms & loot areas
+- ⚡ **Buff Station** - Totem dengan permanent buffs
+- 🎆 **Celebration** - Fireworks & loot rain
 
-3. Pilih **fitur tambahan** (opsional):
-   - Generate Items/Drops
-   - Advanced AI (ThreatTable)
-   - Particle Effects
+#### ✨ Visual Spawn Effects
+- **Spawn Aura** - Magic circles, ritual patterns
+- **Hologram** - Floating boss title dengan effects
+- **Custom Summon** - Proximity trigger, item ritual, altar
 
-4. Klik **Generate Mob**
+## 🎨 Design Philosophy
 
-### 2. Review & Download
+### CINEMATIC EXPERIENCE
+Setiap boss fight harus memorable:
+- Dramatic spawn sequence
+- Clear visual language (red = danger, blue = ice, etc)
+- Sound design for atmosphere
+- Screen shake for impact moments
 
-1. Lihat hasil di **4 tabs**:
-   - **Mobs Config**: Konfigurasi mob utama
-   - **Skills Config**: Semua skill mob
-   - **Items Config**: Item drops (jika diaktifkan)
-   - **Setup Guide**: Panduan instalasi
+### TELEGRAPHED ATTACKS
+**CRITICAL:** All major attacks MUST be telegraphed!
+- Visual: Particle buildup
+- Audio: Warning sounds
+- Text: Action bar messages
+- Duration: Based on difficulty (0.5s - 5s)
 
-2. **Copy** code per-file atau **Download All**
-
-### 3. Install ke Server
-
-1. Copy file ke server:
-```
-Mobs.yml → plugins/MythicMobs/Mobs/
-Skills.yml → plugins/MythicMobs/Skills/
-Items.yml → plugins/MythicMobs/Items/
-```
-
-2. Reload MythicMobs:
-```
-/mm reload
-```
-
-3. Spawn mob:
-```
-/mm mobs spawn <INTERNAL_NAME> 1
-```
-
-## 🎮 Contoh Penggunaan
-
-### Boss Berdasarkan Karakter Anime
-
-**Input:**
-```
-Buat boss Satoru Gojo dari Jujutsu Kaisen:
-- Skill "Infinity" (barrier yang block damage)
-- Skill "Blue" (pull enemies)
-- Skill "Red" (push explosion)
-- Skill "Purple" (massive damage beam)
-- Phase 2: Domain Expansion
-- Base: IRON_GOLEM
-- Disguise: player "SatoruGojo"
-```
-
-### Boss untuk Dungeon
-
-**Input:**
-```
-Buat dungeon boss Lich King dengan:
-- Boss: Lich King (summon skeletons)
-- Minion 1: Death Knight (melee)
-- Minion 2: Banshee (range)
-- Boss skill: Frost Nova, Death Grip, Army of Dead
-- Base boss: WITHER_SKELETON
-```
-
-### Mini Boss
-
-**Input:**
-```
-Mini boss Golem Guard:
-- Skill slam (knockback)
-- Skill shield (damage reduction)
-- Passive: counter-attack
-- Base: IRON_GOLEM
-```
-
-## 📚 MythicMobs Syntax Reference
-
-### Mobs Configuration
-
+Example:
 ```yaml
-INTERNAL_NAME:
-  Type: ZOMBIE                    # Base Minecraft mob
-  Display: '&c&lDisplay Name'     # Nama yang muncul
-  Health: 100                     # HP
-  Damage: 10                      # Base damage
-  Armor: 5                        # Armor points
-  
-  # LibDisguises
-  Disguise:
-    Type: PLAYER
-    Player: Herobrine
-    Skin: Herobrine
-  
-  # Options
-  Options:
-    MovementSpeed: 0.3
-    FollowRange: 32
-    KnockbackResistance: 0.5
-    PreventOtherDrops: true
-  
-  # AI Settings
-  AITargetSelectors:
-  - 0 clear
-  - 1 attacker
-  - 2 players
-  
-  AIGoalSelectors:
-  - 0 clear
-  - 1 meleeattack
-  - 2 randomstroll
-  
-  # Skills
+# 2-second telegraph for big attack
+BOSS_slam:
   Skills:
-  - skill{s=SKILL_NAME} @target ~onTimer:100
-  - skill{s=SKILL_NAME} @self ~onDamaged
+  # WARNING PHASE
+  - actionbar{m="&c⚠ SLAM INCOMING!"} @PIR{r=30}
+  - particles{p=reddust;c=#FF0000;a=80;repeat=40;repeati=1} @ring{r=6;p=12}
+  - sound{s=block.bell.use;v=1.5;p=0.8} @self
+  - delay 40  # 2 seconds
   
-  # Drops
-  Drops:
-  - DIAMOND 1-3 1.0
-  - droptable{t=BOSS_DROPS} 1.0
-```
-
-### Skills Configuration
-
-```yaml
-SKILL_NAME:
-  Cooldown: 10                    # Cooldown in seconds
+  # ATTACK
+  - damage{a=25;ignorearmor=true} @PIR{r=6}
+  - throw{v=8;vy=3} @PIR{r=6}
   
-  Conditions:                     # Conditions for caster
-  - distance{d=<10} true
-  - haspotioneffect{type=POISON} false
-  
-  TargetConditions:              # Conditions for target
-  - playerwithin{d=20} true
-  
-  Skills:                        # Mechanics
-  - damage{amount=10;ignoreArmor=true} @target
-  - projectile{v=10;i=1;hs=true} @target
-  - summon{type=ZOMBIE;amount=3} @self
-  - teleport @target
-  - throw{velocity=5;velocityY=2} @target
-  - potion{type=SLOW;duration=100;level=1} @target
-  - effect:particles{p=flame;a=50;hs=1;vs=1} @self
-  - sound{s=ENTITY_DRAGON_GROWL;v=1;p=1} @self
-  - message{m="<caster.name> used skill!"} @PIR{r=30}
+  # RECOVERY (opening)
+  - setspeed{s=0} @self
+  - delay 40  # 2 seconds vulnerability
+  - setspeed{s=0.3} @self
 ```
 
-### Common Mechanics
+### FAIR CHALLENGE
+- Mistakes are punishing but not instant death (except Nightmare difficulty)
+- Players can learn and improve
+- Skill expression through positioning & timing
+- Clear counterplay to every mechanic
 
-**Damage & Combat:**
-```yaml
-- damage{amount=20;ignoreArmor=true}
-- heal{amount=50}
-- suicide
-```
+## 🔧 Configuration Output
 
-**Movement:**
-```yaml
-- teleport @target
-- leap{velocity=2;velocityY=1}
-- throw{velocity=5;velocityY=2}
-- pull{velocity=3}
-- lunge{velocity=5}
-```
+Generator menghasilkan 3-4 files:
 
-**Summons:**
-```yaml
-- summon{type=ZOMBIE;amount=3;radius=5}
-- summonarea{type=SKELETON;amount=10;radius=20}
-```
+### 1. Mobs.yml
+Complete mob configuration:
+- Stats (HP, damage, armor, speed)
+- LibDisguises setup
+- AI configuration
+- Skills references
+- Drop tables
+- Boss Bar (if enabled)
 
-**Effects:**
-```yaml
-- potion{type=SLOW;duration=100;level=2}
-- ignite{ticks=100}
-- freeze{duration=100}
-```
+### 2. Skills.yml
+All boss skills:
+- Attack mechanics
+- Phase-specific skills
+- Telegraph systems
+- Visual effects
+- Combo chains
 
-**Particles:**
-```yaml
-- effect:particles{p=flame;a=50;hs=1;vs=1;y=1}
-- effect:particles{p=soul;a=20;speed=0.1}
-```
+### 3. Items.yml (Optional)
+Custom drop items dengan:
+- Balanced stats
+- Thematic abilities
+- Custom models (if applicable)
 
-**Sounds:**
-```yaml
-- sound{s=ENTITY_ENDER_DRAGON_GROWL;v=1;p=1}
-- sound{s=ENTITY_WITHER_SPAWN;v=2;p=0.8}
-```
+### 4. SETUP_GUIDE.txt
+Installation instructions:
+- Plugin requirements
+- File placement
+- Spawn commands
+- Feature explanations
+- Troubleshooting
 
-### Targeters
+## 🎯 Difficulty Guide
 
-```yaml
-@self                          # Caster
-@target                        # Current target
-@trigger                       # Entity that triggered skill
+### ⚖️ Balanced
+**HP:** 600-1000 | **Damage:** 12-18 | **Speed:** 0.3-0.35
 
-@PIR{r=10}                    # Players in radius
-@EIR{r=10}                    # Entities in radius
-@MIR{r=10}                    # Mobs in radius
+Telegraph: 1-2 seconds for major attacks
+Cooldowns: Basic (3-5s), Special (10-15s), Ultimate (30-45s)
+Philosophy: Fair challenge, clear counterplay
 
-@Ring{radius=5;points=8}      # Ring of points
-@Circle{radius=10;points=16}   # Circle pattern
-@Forward{f=5}                  # Forward location
-@Origin                        # Spawn location
-```
+### 💪 Hard
+**HP:** 1200-2000 | **Damage:** 20-35 | **Speed:** 0.35-0.42
 
-### Triggers
+Telegraph: 0.5-1 second (FAST!)
+Cooldowns: Basic (2-3s), Special (8-12s), Ultimate (20-30s)
+Philosophy: Requires skill & coordination
 
-```yaml
-~onSpawn                       # When mob spawns
-~onLoad                        # When chunk loads
-~onDeath                       # When mob dies
-~onTimer:100                   # Every 5 seconds (20 ticks = 1s)
-~onAttack                      # When mob attacks
-~onDamaged                     # When mob takes damage
-~onInteract                    # When player interacts
-~onTeleport                    # When mob teleports
-~onExplode                     # When mob explodes
-```
+### 😈 Nightmare
+**HP:** 300-600 | **Damage:** 40-70 | **Speed:** 0.4-0.55
 
-### Conditions
+Telegraph: One-shots (3-5s), Fast attacks (0.5s)
+Cooldowns: Fast (2-4s), One-shots (25-40s)
+Philosophy: GLASS CANNON - kill fast or die fast
 
-```yaml
-# Distance
-- distance{d=<10} true
-- distance{d=10to20} true
+### 🧠 Psychological
+**HP:** 700-1000 | **Damage:** 10-20 | **Speed:** 0.25-0.35
 
-# Health
-- health{h=<50%} true
-- health{h=>80%} true
+Mechanics: Darkness effects, stalking, jumpscares
+Philosophy: Fear > Damage
+Atmosphere: Horror soundscape, unpredictable timing
 
-# Location
-- altitude{a=<64} true
-- biome{b=DESERT} true
-- world{w=world_nether} true
+### 🔥 Souls-like
+**HP:** 800-1200 | **Damage:** 18-30 | **Speed:** 0.3-0.38
 
-# Player
-- playerwithin{d=10} true
-- wearing{s=DIAMOND_HELMET} true
-- holding{i=DIAMOND_SWORD} true
+Telegraph: 2 seconds MINIMUM for ALL major attacks
+Cooldowns: Fixed patterns (15-25s combos)
+Philosophy: Pattern-based, learnable, punishing but FAIR
 
-# Effects
-- haspotioneffect{type=POISON} true
-- hasaura{aura=BURNING} true
+### 🕷️ Overwhelming
+**HP:** 400-700 | **Damage:** 6-12 (per mob) | **Speed:** 0.35-0.42
 
-# Advanced
-- variableequals{var=caster.phase;val=2} true
-- chance{c=0.5} true
-- stance{s=AGGRESSIVE} true
-```
+Mechanics: Constant minion spam (6-10 at once)
+Philosophy: Overwhelm with numbers
+Counter: AoE damage & crowd control
 
-## 🔧 Troubleshooting
+## 💡 Pro Tips
 
-### Error: API Key Not Configured
+### For Best Results:
 
-**Solusi:**
-1. Check Environment Variables di Vercel Dashboard
-2. Pastikan `ANTHROPIC_API_KEY` sudah di-set
-3. Redeploy project setelah set env var
+1. **Be Specific in Description:**
+   - Mention character references (anime, game, movie)
+   - List desired skills explicitly
+   - Specify base Minecraft mob
+   - Describe visual theme
 
-### Error: JSON Parse Error
+2. **Balance Features:**
+   - Don't enable EVERY feature (overwhelming)
+   - Choose 2-4 features that synergize
+   - Match features to difficulty preset
 
-**Solusi:**
-1. Ini biasanya karena response AI format salah
-2. Coba generate lagi dengan deskripsi lebih jelas
-3. Check console browser untuk error detail
+3. **Test in Safe Environment:**
+   - Always test in creative mode first
+   - Adjust stats as needed
+   - Check console for errors
 
-### Mob Tidak Spawn
+4. **Iterate:**
+   - Generate multiple versions
+   - Mix and match best parts
+   - Fine-tune mechanics
 
-**Solusi:**
-1. Check `/mm reload` output untuk syntax error
-2. Pastikan base Type adalah vanilla mob (ZOMBIE, SKELETON, dll)
-3. Test dengan `/mm mobs spawn INTERNAL_NAME 1`
+### Common Mistakes to Avoid:
 
-### Disguise Tidak Muncul
+❌ Vague descriptions: "make a strong boss"
+✅ Specific: "ice wizard with freeze area skill, ice prison trap, summon minions"
 
-**Solusi:**
-1. Pastikan LibDisguises dan ProtocolLib terinstall
-2. Check `/disguise` command works
-3. Format disguise harus benar (lihat contoh di atas)
+❌ Too many features enabled
+✅ 2-4 synergistic features
 
-### Skill Tidak Fire
+❌ Not testing before deploying
+✅ Test in creative, adjust, then deploy
 
-**Solusi:**
-1. Check cooldown tidak terlalu besar
-2. Check conditions terpenuhi
-3. Test trigger dengan `/mm test`
+## 🐛 Troubleshooting
 
-## 📖 Resources
+### Mob doesn't spawn
+- Check `/mm reload` for syntax errors
+- Verify base Type is valid vanilla mob
+- Check console logs
 
-### Official Wikis
+### Skills not working
+- Verify skill names match in Mobs.yml
+- Check cooldown values aren't too high
+- Test triggers with `/mm test`
+
+### Disguise not showing
+- Ensure LibDisguises + ProtocolLib installed
+- Check `/disguise` command works
+- Verify skin name exists (for player disguises)
+
+### Performance issues
+- Reduce particle amounts (default 50 → 20)
+- Increase skill cooldowns
+- Limit active mob count on server
+
+### Config errors
+- Use YAML validator
+- Check indentation (spaces, not tabs!)
+- Verify all brackets/quotes closed
+
+## 🔒 Security & Privacy
+
+- API key stored securely in Vercel environment variables
+- No user data collected or stored
+- All generation happens server-side
+- CORS enabled for web access only
+
+## 📚 Resources
+
 - [MythicMobs Wiki](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/home)
-- [LibDisguises Wiki](https://www.spigotmc.org/resources/libs-disguises-free.81/)
-- [Anthropic Claude API](https://docs.anthropic.com/)
-
-### MythicMobs Wiki Pages
-- [Mobs Configuration](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Mobs/Mobs)
-- [Skills](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Skills)
-- [Mechanics](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Mechanics)
-- [Targeters](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Targeters)
-- [Conditions](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/conditions)
-- [Triggers](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Skills/Triggers)
-- [Items](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/Items/Items)
-- [Drops](https://git.mythiccraft.io/mythiccraft/MythicMobs/-/wikis/drops/Drops)
-
-## ⚙️ Advanced Configuration
-
-### Custom Prompts
-
-Edit `api/generate.js` function `buildPrompt()` untuk customize prompt AI.
-
-### API Timeout
-
-Edit `vercel.json`:
-```json
-{
-  "functions": {
-    "api/generate.js": {
-      "maxDuration": 60
-    }
-  }
-}
-```
-
-### Rate Limiting
-
-Tambahkan rate limiting di `api/generate.js` jika perlu.
+- [LibDisguises](https://www.spigotmc.org/resources/libsdisguises.81/)
+- [MythicMobs Discord](https://discord.gg/mythiccraft)
+- [Anthropic API Docs](https://docs.anthropic.com/)
 
 ## 🤝 Contributing
 
@@ -475,26 +339,55 @@ Contributions welcome! Please:
 1. Fork repository
 2. Create feature branch
 3. Test thoroughly
-4. Submit pull request
+4. Submit pull request with clear description
 
-## 📝 License
+## 📝 Changelog
+
+### v3.0.0 (Current)
+- ✨ Complete overhaul of prompt system
+- 🎬 Cinematic boss fights dengan telegraph system
+- 🧠 6 custom AI behavior patterns
+- 🗼 Healing tower mechanic
+- 🎁 6 boss death reward types
+- ✨ Visual spawn effects (aura, hologram, summon)
+- 📊 Enhanced difficulty presets
+- 🎨 Improved visual language & sound design
+
+### v2.0.0
+- Custom AI behavior options
+- Healing tower system
+- Death reward mechanics
+- Visual spawn effects
+- Modular prompt architecture
+
+### v1.0.0
+- Initial release
+- Basic mob generation
+- Difficulty presets
+- LibDisguises integration
+
+## ⚖️ License
 
 MIT License - free to use and modify
 
-## ⚠️ Disclaimer
+## 🙏 Credits
 
-- Tool ini generate config berdasarkan AI
-- Selalu test config di test server dulu
-- Sesuaikan balance (HP, damage, cooldown) sesuai kebutuhan
-- Tidak bertanggung jawab atas masalah di server production
-
-## 💬 Support
-
-Butuh bantuan? 
-- Baca Wiki MythicMobs terlebih dahulu
-- Check console error
-- Test di test server dulu
+- **Generator:** Built by Flux677
+- **AI:** Powered by Claude (Anthropic)
+- **Plugin:** MythicMobs by Mythiccraft
+- **Community:** MythicMobs Discord & SpigotMC
 
 ---
 
-Made with ❤️ using Claude AI
+## 💬 Support
+
+Need help? Found a bug?
+- Open issue on GitHub
+- Join MythicMobs Discord
+- Check troubleshooting guide above
+
+---
+
+**Made with ❤️ for the MythicMobs community**
+
+*Generate EPIC bosses. Create MEMORABLE encounters. Build LEGENDARY servers.*
