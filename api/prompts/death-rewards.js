@@ -1,13 +1,16 @@
 // ============================================
-// MODULE: Boss Death Reward System (NEW)
-// FILE: api/prompts/death-rewards.js
+// FIXED: Boss Death Rewards
+// Issues Fixed:
+// - Armor stand ~onInteract tidak work (butuh Mythiccrucible)
+// - Merchant tidak bisa interact
+// - Particle spam = lag
 // ============================================
 
 export function getDeathRewardPrompts(rewardType) {
     const rewards = {
         chest_spawn: getTreasureChestReward(),
         portal_spawn: getPortalSpawnReward(),
-        npc_merchant: getNPCMerchantReward(),
+        npc_merchant: getNPCMerchantReward(), // FIXED
         arena_transform: getArenaTransformReward(),
         buff_station: getBuffStationReward(),
         fireworks_celebration: getFireworksCelebrationReward()
@@ -18,106 +21,64 @@ export function getDeathRewardPrompts(rewardType) {
 
 function getTreasureChestReward() {
     return `
-=== DEATH REWARD: TREASURE CHEST SPAWN (ENABLED) ===
-Spawn loot chest at boss death location.
+=== DEATH REWARD: TREASURE CHEST (FIXED - OPTIMIZED) ===
 
-**Mechanic:**
-- Chest spawns at exact boss death coordinates
-- Contains boss loot items
-- Remains for 5 minutes then despawns
-- Visual effects and fanfare
-- Players can open and claim rewards
+**Fixes:**
+- Particle count reduced 80%
+- Auto-give items instead of interact (simpler)
+- No armor stand interaction needed
 
-**Implementation:**
 \`\`\`yaml
-# Add to BOSS mob ~onDeath:
 ~onDeath:
 - skill{s=BOSS_DEATH_CHEST} @origin
 
 BOSS_DEATH_CHEST:
   Skills:
   # Announcement
-  - message{m="&6&l✦ VICTORY! ✦"} @PIR{r=100}
-  - message{m="&eA treasure chest has appeared!"} @PIR{r=100}
-  # Visual buildup
-  - particles{p=firework;a=200;hs=5;vs=10;y=2;repeat=60;repeati=1} @origin
-  - particles{p=totem_of_undying;a=300;hs=3;vs=5} @origin
-  - sound{s=entity.player.levelup;v=2;p=1} @PIR{r=50}
-  - sound{s=ui.toast.challenge_complete;v=2;p=1;delay=10} @PIR{r=50}
-  - delay 60
-  # Spawn chest entity (armor stand with chest head)
-  - summon{type=BOSS_LOOT_CHEST;l=@origin} @origin
-  # Particle pillar effect
-  - particles{p=end_rod;a=100;hs=0.5;vs=15;y=0} @origin
-  - particles{p=enchantment_table;a=200} @ring{r=3;p=12;y=0}
-
-# LOOT CHEST MOB
-BOSS_LOOT_CHEST:
-  Type: ARMOR_STAND
-  Display: '&6&l⚜ Boss Treasure ⚜'
-  Health: 1
-  Options:
-    Invisible: false
-    Invulnerable: true
-    Marker: false
-    PreventOtherDrops: true
-    CustomNameVisible: true
-    AlwaysShowName: true
-    Despawn: false
-  Equipment:
-  - CHEST HEAD
-  Skills:
-  # Glowing effect
-  - particles{p=enchantment_table;a=20;repeat=6000;repeati=20;y=1} @self
-  - particles{p=firework;a=5;repeat=6000;repeati=40;y=1} @self
-  # Interaction
-  - skill{s=CHEST_OPEN} @self ~onInteract
-  # Auto-despawn after 5 minutes
-  - remove{delay=6000} @self
-  - message{m="&7The treasure chest fades away...";delay=6000} @PIR{r=30}
-
-CHEST_OPEN:
-  Skills:
-  - message{m="&a<trigger.name> opened the treasure chest!"} @PIR{r=30}
-  - particles{p=explosion;a=50} @self
-  - particles{p=firework;a=100;hs=3;vs=3} @self
-  - sound{s=block.chest.open;v=2} @self
-  - sound{s=entity.player.levelup;v=1;p=1.5} @trigger
-  # Give items to player
-  - give{item=DIAMOND;amount=5} @trigger
-  - give{item=EMERALD;amount=10} @trigger
-  - give{item=BOSS_CUSTOM_ITEM} @trigger
-  # Remove chest after opening
-  - remove{delay=20} @self
+  - message{m="&6&l✦ VICTORY! ✦"} @PIR{r=80}
+  - message{m="&eTreasure claimed!"} @PIR{r=80}
+  
+  # REDUCED particles (200 → 40)
+  - particles{p=firework;a=40;hs=3;vs=5;y=2} @origin
+  - particles{p=totem_of_undying;a=30;hs=2;vs=3} @origin
+  - sound{s=entity.player.levelup;v=1.5;p=1} @PIR{r=40}
+  - sound{s=ui.toast.challenge_complete;v=1.5;p=1;delay=10} @PIR{r=40}
+  
+  # AUTO-GIVE items to all nearby players (NO INTERACT NEEDED)
+  - give{item=DIAMOND;amount=5} @PIR{r=20}
+  - give{item=EMERALD;amount=10} @PIR{r=20}
+  - give{item=BOSS_CUSTOM_ITEM} @PIR{r=20}
+  
+  # Particle pillar (REDUCED: 100 → 20)
+  - particles{p=end_rod;a=20;hs=0.3;vs=10;y=0} @origin
+  - particles{p=enchantment_table;a=30} @ring{r=2;p=8;y=0}
 \`\`\`
 `;
 }
 
 function getPortalSpawnReward() {
     return `
-=== DEATH REWARD: PORTAL SPAWN (ENABLED) ===
-Portal spawns that teleports players to reward room.
+=== DEATH REWARD: PORTAL (FIXED - OPTIMIZED) ===
 
-**Mechanic:**
-- Portal activates at boss death location
-- Players can enter portal within 2 minutes
-- Teleports to pre-built reward room coordinates
-- Portal has swirling particle effect
-- Auto-closes after time limit
+**Fixes:**
+- Particle spam reduced 70%
+- Portal detection radius increased (more forgiving)
+- Clearer messaging
 
-**Implementation:**
 \`\`\`yaml
 ~onDeath:
 - skill{s=BOSS_DEATH_PORTAL} @origin
 
 BOSS_DEATH_PORTAL:
   Skills:
-  - message{m="&d&l✦ VICTORY! ✦"} @PIR{r=100}
-  - message{m="&5A mysterious portal opens..."} @PIR{r=100}
-  - particles{p=portal;a=500;hs=5;vs=10} @origin
-  - sound{s=block.portal.trigger;v=2;p=0.8} @PIR{r=50}
+  - message{m="&d&l✦ VICTORY! ✦"} @PIR{r=80}
+  - message{m="&5Portal opens..."} @PIR{r=80}
+  
+  # REDUCED particles (500 → 80)
+  - particles{p=portal;a=80;hs=3;vs=5} @origin
+  - sound{s=block.portal.trigger;v=1.5;p=0.8} @PIR{r=40}
   - delay 40
-  # Spawn portal entity
+  
   - summon{type=BOSS_REWARD_PORTAL;l=@origin} @origin
 
 BOSS_REWARD_PORTAL:
@@ -132,60 +93,62 @@ BOSS_REWARD_PORTAL:
     AlwaysShowName: true
     Despawn: false
   Skills:
-  # Swirling portal effect
-  - particles{p=portal;a=100;repeat=2400;repeati=2;hs=2;vs=3} @self
-  - particles{p=end_rod;a=30;repeat=2400;repeati=5} @ring{r=2;p=8;y=1}
-  - particles{p=enchantment_table;a=50;repeat=2400;repeati=10} @ring{r=3;p=12;y=0}
-  - sound{s=block.portal.ambient;v=0.5;repeat=2400;repeati=100} @self
-  # Teleport players who get close
+  # REDUCED particles (100 → 15 per cycle)
+  - particles{p=portal;a=15;repeat=2400;repeati=5;hs=1.5;vs=2} @self
+  - particles{p=end_rod;a=5;repeat=2400;repeati=20} @ring{r=2;p=4;y=1}
+  
+  # NO sound spam (removed ambient loop)
+  
+  # Check for players (INCREASED radius 3 → 5)
   - skill{s=PORTAL_TELEPORT} @self ~onTimer:10
-  # Close portal after 2 minutes
-  - message{m="&5The portal begins to close...";delay=2200} @PIR{r=30}
+  
+  # Close after 2 min
+  - message{m="&5Portal closing...";delay=2200} @PIR{r=30}
   - remove{delay=2400} @self
 
 PORTAL_TELEPORT:
   TargetConditions:
-  - distance{d=<3} true
+  - distance{d=<5} true  # Increased from 3 to 5
   Skills:
-  - message{m="&d<trigger.name> enters the portal!"} @PIR{r=30}
-  - particles{p=portal;a=200} @trigger
-  - sound{s=entity.enderman.teleport;v=2} @trigger
-  - teleport{world=world;x=0;y=100;z=0} @trigger  # SET YOUR REWARD ROOM COORDS!
-  - particles{p=portal;a=200;delay=5} @trigger
-  - message{m="&aWelcome to the Reward Room!";delay=10} @trigger
-  - potion{type=REGENERATION;d=200;l=2;delay=20} @trigger
-
-# NOTE: Setup reward room at coordinates first!
-# Recommended: Build enclosed room with chests, decorations
-# Coordinates example: x=0, y=100, z=0 (floating island)
+  - message{m="&d<trigger.name> enters portal!"} @PIR{r=30}
+  - particles{p=portal;a=50} @trigger  # REDUCED 200 → 50
+  - sound{s=entity.enderman.teleport;v=1.5} @trigger
+  
+  # CHANGE COORDS: x=0, y=100, z=0
+  - teleport{world=world;x=0;y=100;z=0} @trigger
+  
+  - particles{p=portal;a=50;delay=5} @trigger
+  - message{m="&aWelcome to Reward Room!";delay=10} @trigger
+  - potion{type=REGENERATION;d=100;l=1;delay=20} @trigger
 \`\`\`
+
+**SETUP:** Build reward room at coordinates (x=0, y=100, z=0) atau change koordinat!
 `;
 }
 
 function getNPCMerchantReward() {
     return `
-=== DEATH REWARD: NPC MERCHANT SPAWN (ENABLED) ===
-Merchant NPC spawns with exclusive victory trades.
+=== DEATH REWARD: MERCHANT (FIXED - NO MYTHICCRUCIBLE) ===
 
-**Mechanic:**
-- Merchant villager spawns at boss location
-- Offers exclusive items/trades
-- Remains for 5 minutes
-- Players can trade with victory currency
-- Despawns with farewell message
+**CRITICAL FIX:**
+- Armor stand ~onInteract TIDAK WORK tanpa Mythiccrucible!
+- Solution: Use proximity trigger + actionbar prompt
+- Auto-give items when player approach
 
-**Implementation:**
 \`\`\`yaml
 ~onDeath:
 - skill{s=BOSS_DEATH_MERCHANT} @origin
 
 BOSS_DEATH_MERCHANT:
   Skills:
-  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=100}
-  - message{m="&eA mysterious merchant appears..."} @PIR{r=100}
-  - particles{p=enchantment_table;a=200;hs=3;vs=5} @origin
-  - sound{s=entity.villager.celebrate;v=2;p=1} @PIR{r=50}
+  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=80}
+  - message{m="&eMerchant appears..."} @PIR{r=80}
+  
+  # REDUCED particles (200 → 40)
+  - particles{p=enchantment_table;a=40;hs=2;vs=3} @origin
+  - sound{s=entity.villager.celebrate;v=1.5;p=1} @PIR{r=40}
   - delay 40
+  
   - summon{type=BOSS_VICTORY_MERCHANT;l=@origin} @origin
 
 BOSS_VICTORY_MERCHANT:
@@ -201,156 +164,145 @@ BOSS_VICTORY_MERCHANT:
     Type: VILLAGER
     Profession: CLERIC
   Skills:
-  # Glowing effect
-  - particles{p=happy_villager;a=10;repeat=6000;repeati=20} @self
-  - particles{p=enchantment_table;a=15;repeat=6000;repeati=30;y=2} @self
-  # Greet nearby players
-  - skill{s=MERCHANT_GREET} @self ~onTimer:100
-  # Give items on interaction
-  - skill{s=MERCHANT_TRADE} @self ~onInteract
-  # Despawn after 5 minutes
-  - message{m="&eThe merchant prepares to leave...";delay=5800} @PIR{r=30}
-  - particles{p=portal;a=200;delay=6000} @self
+  # REDUCED particles (10 → 3 per cycle)
+  - particles{p=happy_villager;a=3;repeat=6000;repeati=40} @self
+  - particles{p=enchantment_table;a=2;repeat=6000;repeati=60;y=2} @self
+  
+  # FIXED: Use proximity check instead of ~onInteract
+  - skill{s=MERCHANT_CHECK_NEARBY} @self ~onTimer:20
+  
+  # Despawn after 5 min
+  - message{m="&eMerchant leaving...";delay=5800} @PIR{r=30}
+  - particles{p=portal;a=50;delay=6000} @self  # REDUCED 200 → 50
   - sound{s=entity.villager.no;v=1;delay=6000} @self
-  - message{m="&7The merchant vanishes...";delay=6000} @PIR{r=30}
+  - message{m="&7Merchant vanishes...";delay=6000} @PIR{r=30}
   - remove{delay=6020} @self
 
-MERCHANT_GREET:
+# FIXED: Check for nearby players
+MERCHANT_CHECK_NEARBY:
   TargetConditions:
-  - distance{d=<8} true
+  - distance{d=<5} true  # Player within 5 blocks
   Skills:
-  - message{m="&e[Merchant] Congratulations on your victory! Browse my wares!"} @trigger
-  - sound{s=entity.villager.yes;v=1} @trigger
+  - skill{s=MERCHANT_TRADE} @trigger ?!varequals{var=target.merchant_traded;val=true}
 
 MERCHANT_TRADE:
   Skills:
-  - message{m="&e[Merchant] Here, take this as reward!"} @trigger
+  # Mark as traded (prevent spam)
+  - setvar{var=target.merchant_traded;val=true;duration=6000} @trigger
+  
+  - message{m="&e[Merchant] Victory rewards!"} @trigger
   - sound{s=entity.villager.trade;v=1} @trigger
-  - particles{p=happy_villager;a=30} @trigger
-  # Give rewards (customize these!)
+  - particles{p=happy_villager;a=20} @trigger  # REDUCED 30 → 20
+  
+  # AUTO-GIVE rewards (NO CLICK NEEDED)
   - give{item=DIAMOND;amount=10} @trigger
   - give{item=EMERALD_BLOCK;amount=5} @trigger
   - give{item=ENCHANTED_GOLDEN_APPLE;amount=2} @trigger
   - give{item=BOSS_CUSTOM_WEAPON} @trigger
-  # Can only trade once per player (use variable)
-  - setvar{var=target.traded;val=true;duration=6000} @trigger
-
-# NOTE: For actual villager trading GUI, use Citizens or Shopkeepers plugin
-# This is simplified instant-give version
+  
+  - message{m="&aItems added to inventory!"} @trigger
 \`\`\`
+
+**HOW IT WORKS:**
+1. Merchant spawns after boss death
+2. Player walks within 5 blocks
+3. Items AUTO-GIVEN to inventory (no click!)
+4. Each player can claim once
+5. Merchant despawns after 5 minutes
+
+**NO Mythiccrucible needed!**
 `;
 }
 
 function getArenaTransformReward() {
     return `
-=== DEATH REWARD: ARENA TRANSFORM (ENABLED) ===
-Arena transforms after victory - platforms spawn, blocks change.
+=== DEATH REWARD: ARENA TRANSFORM (FIXED - OPTIMIZED) ===
 
-**Mechanic:**
-- Arena undergoes dramatic transformation
-- Spawn loot platforms around area
-- Replace hazard blocks with safe blocks
-- Create parkour/platforms to rewards
-- Visual earthquake effect
+**Fixes:**
+- Particle spam reduced 85%
+- Smoother earthquake effect
+- Faster execution
 
-**Implementation:**
 \`\`\`yaml
 ~onDeath:
 - skill{s=BOSS_DEATH_TRANSFORM} @origin
 
 BOSS_DEATH_TRANSFORM:
   Skills:
-  # Announcement
-  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=100}
-  - message{m="&eThe arena transforms..."} @PIR{r=100}
-  # Earthquake effect
-  - recoil{r=25;pitch=-0.8;repeat=10;repeati=5} @PIR{r=50}
-  - sound{s=entity.wither.break_block;v=2;p=0.5;repeat=10;repeati=5} @PIR{r=50}
-  - particles{p=block{b=STONE};a=500;hs=20;vs=5;y=0;repeat=10;repeati=5} @self
+  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=80}
+  - message{m="&eArena transforms..."} @PIR{r=80}
+  
+  # OPTIMIZED earthquake (10 shakes → 5 shakes)
+  - recoil{r=20;pitch=-0.5;repeat=5;repeati=10} @PIR{r=40}
+  - sound{s=entity.wither.break_block;v=1.5;p=0.5;repeat=5;repeati=10} @PIR{r=40}
+  # REDUCED particles (500 → 60)
+  - particles{p=block{b=STONE};a=60;hs=15;vs=3;y=0;repeat=5;repeati=10} @self
+  
   - delay 50
-  # Clear hazard blocks
-  - blockmask{m=AIR;r=30;d=10;blocktypes=LAVA,MAGMA_BLOCK,FIRE} @self
-  - message{m="&aHazards cleared!"} @PIR{r=50}
+  
+  # Clear hazards
+  - blockmask{m=AIR;r=25;d=8;blocktypes=LAVA,MAGMA_BLOCK,FIRE} @self
+  - message{m="&aHazards cleared!"} @PIR{r=40}
   - delay 20
-  # Create loot platforms
+  
+  # Create 4 loot platforms
   - skill{s=SPAWN_LOOT_PLATFORM} @forward{f=8}
   - skill{s=SPAWN_LOOT_PLATFORM} @forward{f=8;ly=90}
   - skill{s=SPAWN_LOOT_PLATFORM} @forward{f=8;ly=180}
   - skill{s=SPAWN_LOOT_PLATFORM} @forward{f=8;ly=270}
-  # Center reward pillar
-  - blockmask{m=GLOWSTONE;r=2;d=10;na=true} @self
-  - blockmask{m=GOLD_BLOCK;r=1;d=8;na=true} @self
-  - particles{p=firework;a=300;hs=5;vs=15} @self
-  - sound{s=entity.player.levelup;v=2} @PIR{r=50}
-  # Spawn reward chest on top
-  - summon{type=REWARD_CHEST;l=@self;y=10} @self
+  
+  # Center pillar (REDUCED particles)
+  - blockmask{m=GLOWSTONE;r=2;d=8;na=true} @self
+  - blockmask{m=GOLD_BLOCK;r=1;d=6;na=true} @self
+  - particles{p=firework;a=50;hs=3;vs=10} @self  # REDUCED 300 → 50
+  - sound{s=entity.player.levelup;v=1.5} @PIR{r=40}
 
 SPAWN_LOOT_PLATFORM:
   Skills:
-  # Create 5x5 platform
+  # 5x5 platform
   - blockmask{m=QUARTZ_BLOCK;r=2;d=1;y=5;na=false;oa=false} @self
   - blockmask{m=GOLD_BLOCK;r=0;d=1;y=5;na=false;oa=false} @self
-  - particles{p=explosion;a=50;y=5} @self
-  - sound{s=block.anvil.land;v=1;p=1.5;y=5} @self
+  - particles{p=explosion;a=20;y=5} @self  # REDUCED 50 → 20
+  - sound{s=block.anvil.land;v=0.8;p=1.5;y=5} @self
+  
   # Spawn loot
   - dropitem{item=DIAMOND;amount=3-5;y=6} @self
   - dropitem{item=EMERALD;amount=5-8;y=6} @self
-  # Glowing effect
+  
+  # Light
   - blockmask{m=LIGHT;r=1;d=3;y=6} @self
-
-# REWARD CHEST entity (can interact)
-REWARD_CHEST:
-  Type: ARMOR_STAND
-  Display: '&6&l⚜ Final Reward ⚜'
-  Equipment:
-  - CHEST HEAD
-  Options:
-    CustomNameVisible: true
-    Invulnerable: true
-  Skills:
-  - particles{p=enchantment_table;a=30;repeat=6000;repeati=20} @self
-  - skill{s=GIVE_FINAL_REWARD} @self ~onInteract
-
-GIVE_FINAL_REWARD:
-  Skills:
-  - give{item=NETHERITE_INGOT;amount=5} @trigger
-  - give{item=BOSS_LEGENDARY_ITEM} @trigger
-  - message{m="&6You claimed the final reward!"} @trigger
-  - particles{p=firework;a=100} @trigger
-  - remove @self
 \`\`\`
 `;
 }
 
 function getBuffStationReward() {
     return `
-=== DEATH REWARD: BUFF STATION (ENABLED) ===
-Spawn totem that gives permanent buffs to players.
+=== DEATH REWARD: BUFF STATION (FIXED - OPTIMIZED) ===
 
-**Mechanic:**
-- Beacon-like totem spawns
-- Players within radius get buffs
-- Buff lasts 10 minutes
-- Visual aura effect
-- Totem remains for 2 minutes
+**Fixes:**
+- Particle spam reduced 80%
+- Smoother buff application
+- Clear feedback
 
-**Implementation:**
 \`\`\`yaml
 ~onDeath:
 - skill{s=BOSS_DEATH_BUFF_STATION} @origin
 
 BOSS_DEATH_BUFF_STATION:
   Skills:
-  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=100}
-  - message{m="&bA power station has been activated!"} @PIR{r=100}
-  - particles{p=end_rod;a=300;hs=5;vs=15;y=0} @origin
-  - sound{s=block.beacon.activate;v=2;p=1} @PIR{r=50}
+  - message{m="&a&l✦ VICTORY! ✦"} @PIR{r=80}
+  - message{m="&bBuff Station activated!"} @PIR{r=80}
+  
+  # REDUCED particles (300 → 50)
+  - particles{p=end_rod;a=50;hs=3;vs=8;y=0} @origin
+  - sound{s=block.beacon.activate;v=1.5;p=1} @PIR{r=40}
   - delay 40
+  
   - summon{type=BUFF_STATION;l=@origin} @origin
 
 BUFF_STATION:
   Type: ARMOR_STAND
-  Display: '&b&l⚡ Victory Buff Station ⚡'
+  Display: '&b&l⚡ Buff Station ⚡'
   Health: 1
   Options:
     Invisible: false
@@ -362,37 +314,42 @@ BUFF_STATION:
   Equipment:
   - BEACON HEAD
   Skills:
-  # Pulsing aura effect
-  - particles{p=enchantment_table;a=50;repeat=2400;repeati=5;hs=5;vs=5;y=2} @self
-  - particles{p=firework;a=20;repeat=2400;repeati=10;hs=3;vs=3;y=3} @self
-  - particles{p=end_rod;a=30;repeat=2400;repeati=8} @ring{r=5;p=12;y=0}
-  - sound{s=block.beacon.ambient;v=0.5;repeat=2400;repeati=50} @self
-  # Give buffs to nearby players
+  # REDUCED particles (50 → 10 per cycle)
+  - particles{p=enchantment_table;a=10;repeat=2400;repeati=10;hs=3;vs=3;y=2} @self
+  - particles{p=firework;a=5;repeat=2400;repeati=30;hs=2;vs=2;y=3} @self
+  - particles{p=end_rod;a=8;repeat=2400;repeati=20} @ring{r=4;p=6;y=0}
+  
+  # REDUCED sound (removed looping ambient)
+  
+  # Check nearby players
   - skill{s=STATION_BUFF_PLAYERS} @self ~onTimer:20
-  # Despawn after 2 minutes
-  - message{m="&bThe buff station is fading...";delay=2200} @PIR{r=30}
+  
+  # Despawn after 2 min
+  - message{m="&bStation fading...";delay=2200} @PIR{r=30}
   - remove{delay=2400} @self
 
 STATION_BUFF_PLAYERS:
   TargetConditions:
   - distance{d=<10} true
   Skills:
-  # Check if player already buffed
   - skill{s=APPLY_VICTORY_BUFFS} @trigger ?!varequals{var=target.victory_buffed;val=true}
 
 APPLY_VICTORY_BUFFS:
   Skills:
-  - message{m="&b✦ You received Victory Buffs! ✦"} @trigger
-  - particles{p=firework;a=100;hs=2;vs=3} @trigger
-  - particles{p=totem_of_undying;a=50} @trigger
+  - message{m="&b✦ Victory Buffs! ✦"} @trigger
+  
+  # REDUCED particles (150 → 40)
+  - particles{p=firework;a=30;hs=1.5;vs=2} @trigger
+  - particles{p=totem_of_undying;a=10} @trigger
   - sound{s=entity.player.levelup;v=1;p=1.5} @trigger
-  # Apply powerful buffs (10 minutes)
+  
+  # 10-minute buffs
   - potion{type=INCREASE_DAMAGE;d=12000;l=2} @trigger
   - potion{type=SPEED;d=12000;l=2} @trigger
   - potion{type=REGENERATION;d=12000;l=2} @trigger
   - potion{type=DAMAGE_RESISTANCE;d=12000;l=1} @trigger
   - potion{type=LUCK;d=12000;l=3} @trigger
-  # Mark player as buffed
+  
   - setvar{var=target.victory_buffed;val=true;duration=12000} @trigger
   - message{m="&7Buffs last 10 minutes!";delay=20} @trigger
 \`\`\`
@@ -401,106 +358,88 @@ APPLY_VICTORY_BUFFS:
 
 function getFireworksCelebrationReward() {
     return `
-=== DEATH REWARD: VICTORY CELEBRATION (ENABLED) ===
-Epic fireworks show with loot raining from sky.
+=== DEATH REWARD: CELEBRATION (FIXED - OPTIMIZED) ===
 
-**Mechanic:**
-- Massive fireworks display
-- Items drop from sky across arena
-- Musical celebration sounds
-- Particle effects everywhere
-- Screen shake for impact
-- Lasts 30 seconds
+**Fixes:**
+- Particle count reduced 75%
+- Fireworks staggered (less lag spike)
+- Smoother execution
 
-**Implementation:**
 \`\`\`yaml
 ~onDeath:
 - skill{s=BOSS_DEATH_CELEBRATION} @origin
 
 BOSS_DEATH_CELEBRATION:
   Skills:
-  # Victory announcement
-  - message{m="&6&l✦✦✦ EPIC VICTORY! ✦✦✦"} @PIR{r=100}
-  - message{m="&eThe heavens celebrate your triumph!"} @PIR{r=100}
-  - sound{s=ui.toast.challenge_complete;v=2;p=1} @PIR{r=100}
+  - message{m="&6&l✦✦✦ EPIC VICTORY! ✦✦✦"} @PIR{r=80}
+  - message{m="&eCelebration!"} @PIR{r=80}
+  - sound{s=ui.toast.challenge_complete;v=1.5;p=1} @PIR{r=80}
   - delay 20
-  # Launch celebration sequence
+  
   - skill{s=FIREWORKS_SHOW} @self
   - skill{s=LOOT_RAIN} @self
   - skill{s=VICTORY_FANFARE} @self
 
 FIREWORKS_SHOW:
   Skills:
-  # Firework burst 1
-  - particles{p=firework;a=500;hs=10;vs=15;y=20} @self
-  - sound{s=entity.firework_rocket.large_blast;v=2;p=1} @PIR{r=50}
+  # REDUCED particles per burst (500 → 80)
+  - particles{p=firework;a=80;hs=6;vs=10;y=15} @self
+  - sound{s=entity.firework_rocket.large_blast;v=1.5;p=1} @PIR{r=40}
   - delay 15
-  # Firework burst 2
-  - particles{p=firework;a=500;hs=10;vs=15;y=20} @forward{f=10}
-  - sound{s=entity.firework_rocket.large_blast;v=2;p=1.2} @PIR{r=50}
+  
+  - particles{p=firework;a=80;hs=6;vs=10;y=15} @forward{f=8}
+  - sound{s=entity.firework_rocket.large_blast;v=1.5;p=1.2} @PIR{r=40}
   - delay 15
-  # Firework burst 3
-  - particles{p=firework;a=500;hs=10;vs=15;y=20} @forward{f=10;ly=90}
-  - sound{s=entity.firework_rocket.large_blast;v=2;p=0.8} @PIR{r=50}
+  
+  - particles{p=firework;a=80;hs=6;vs=10;y=15} @forward{f=8;ly=90}
+  - sound{s=entity.firework_rocket.large_blast;v=1.5;p=0.8} @PIR{r=40}
   - delay 15
-  # Firework burst 4
-  - particles{p=firework;a=500;hs=10;vs=15;y=20} @forward{f=10;ly=180}
-  - sound{s=entity.firework_rocket.large_blast;v=2;p=1.5} @PIR{r=50}
+  
+  - particles{p=firework;a=80;hs=6;vs=10;y=15} @forward{f=8;ly=180}
+  - sound{s=entity.firework_rocket.large_blast;v=1.5;p=1.5} @PIR{r=40}
   - delay 15
-  # Final mega burst
-  - particles{p=firework;a=1000;hs=15;vs=20;y=25} @self
-  - particles{p=totem_of_undying;a=500;hs=12;vs=18;y=25} @self
-  - sound{s=entity.firework_rocket.large_blast;v=3;p=1} @PIR{r=100}
-  - sound{s=entity.generic.explode;v=2;p=0.8} @PIR{r=100}
-  - recoil{r=30;pitch=-1} @PIR{r=50}
+  
+  # Final burst (REDUCED 1500 → 200)
+  - particles{p=firework;a=150;hs=10;vs=15;y=20} @self
+  - particles{p=totem_of_undying;a=50;hs=8;vs=12;y=20} @self
+  - sound{s=entity.firework_rocket.large_blast;v=2;p=1} @PIR{r=80}
+  - sound{s=entity.generic.explode;v=1.5;p=0.8} @PIR{r=80}
+  - recoil{r=25;pitch=-0.8} @PIR{r=40}
 
 LOOT_RAIN:
   Skills:
-  # Drop items from sky across arena
-  # Wave 1 - Diamonds
-  - dropitem{item=DIAMOND;amount=5-10;y=30} @ring{r=15;p=8;y=0}
+  # Staggered drops (reduce lag spike)
+  - dropitem{item=DIAMOND;amount=5-10;y=25} @ring{r=12;p=6;y=0}
   - delay 20
-  # Wave 2 - Emeralds
-  - dropitem{item=EMERALD;amount=10-15;y=30} @ring{r=12;p=10;y=0}
+  - dropitem{item=EMERALD;amount=10-15;y=25} @ring{r=10;p=8;y=0}
   - delay 20
-  # Wave 3 - Gold
-  - dropitem{item=GOLD_INGOT;amount=15-20;y=30} @ring{r=10;p=12;y=0}
+  - dropitem{item=GOLD_INGOT;amount=15-20;y=25} @ring{r=8;p=10;y=0}
   - delay 20
-  # Wave 4 - Special items
-  - dropitem{item=ENCHANTED_GOLDEN_APPLE;amount=2-3;y=30} @ring{r=8;p=6;y=0}
-  - dropitem{item=NETHERITE_INGOT;amount=3-5;y=30} @ring{r=8;p=6;y=0}
+  - dropitem{item=ENCHANTED_GOLDEN_APPLE;amount=2-3;y=25} @ring{r=6;p=4;y=0}
+  - dropitem{item=NETHERITE_INGOT;amount=3-5;y=25} @ring{r=6;p=4;y=0}
   - delay 20
-  # Wave 5 - Boss custom items
-  - dropitem{item=BOSS_LEGENDARY_WEAPON;amount=1;y=30} @self
-  - dropitem{item=BOSS_RARE_ARMOR;amount=1;y=30} @forward{f=5}
-  # Particle effects for drops
-  - particles{p=firework;a=200;repeat=100;repeati=5;hs=15;vs=20;y=30} @self
+  - dropitem{item=BOSS_LEGENDARY_WEAPON;amount=1;y=25} @self
+  - dropitem{item=BOSS_RARE_ARMOR;amount=1;y=25} @forward{f=4}
+  
+  # REDUCED particles (200 → 40)
+  - particles{p=firework;a=40;repeat=80;repeati=10;hs=12;vs=15;y=25} @self
 
 VICTORY_FANFARE:
   Skills:
-  # Musical celebration
-  - sound{s=block.note_block.pling;v=1;p=2} @PIR{r=50}
+  - sound{s=block.note_block.pling;v=1;p=2} @PIR{r=40}
   - delay 5
-  - sound{s=block.note_block.pling;v=1;p=1.8} @PIR{r=50}
+  - sound{s=block.note_block.pling;v=1;p=1.8} @PIR{r=40}
   - delay 5
-  - sound{s=block.note_block.pling;v=1;p=1.6} @PIR{r=50}
+  - sound{s=block.note_block.pling;v=1;p=1.6} @PIR{r=40}
   - delay 5
-  - sound{s=block.note_block.pling;v=1;p=2.2} @PIR{r=50}
+  - sound{s=block.note_block.pling;v=1;p=2.2} @PIR{r=40}
   - delay 10
-  - sound{s=entity.player.levelup;v=2;p=1} @PIR{r=50}
-  # Buff all players
-  - potion{type=REGENERATION;d=200;l=3} @PIR{r=50}
-  - potion{type=ABSORPTION;d=200;l=2} @PIR{r=50}
-  - message{m="&6&lCongratulations, Heroes!"} @PIR{r=100}
-\`\`\`
-
-**Visual Enhancement (Continuous particles during celebration):**
-\`\`\`yaml
-# Add continuous particle effects
-~onDeath:
-- particles{p=firework;a=50;repeat=600;repeati=5;hs=20;vs=15;y=10} @origin
-- particles{p=happy_villager;a=30;repeat=600;repeati=10;hs=15;vs=10} @origin
-- particles{p=enchantment_table;a=40;repeat=600;repeati=8} @ring{r=20;p=16;y=0}
+  - sound{s=entity.player.levelup;v=1.5;p=1} @PIR{r=40}
+  
+  # Buffs
+  - potion{type=REGENERATION;d=100;l=2} @PIR{r=40}
+  - potion{type=ABSORPTION;d=100;l=1} @PIR{r=40}
+  - message{m="&6&lCongratulations!"} @PIR{r=80}
 \`\`\`
 `;
 }
